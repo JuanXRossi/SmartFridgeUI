@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import client from "lib/api/client";
-import type { RegisterRequest, RegisterResponse } from "types/api/auth";
+import client from "@/api/client";
+import type { RegisterRequest, RegisterResponse } from "@/app/types/api/auth";
 
 export async function POST(req: Request) {
   try {
