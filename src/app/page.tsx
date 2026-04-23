@@ -5,7 +5,7 @@ import NewsletterSignup from "src/components/NewsletterSignup";
 import FooterAuthLinks from "src/components/FooterAuthLinks";
 import SignupModalClientWrapper from "src/components/SignupModalClientWrapper";
 
-export default function Home() {
+export default function Page() {
   return (
     <SignupModalClientWrapper>
       <Hero />
