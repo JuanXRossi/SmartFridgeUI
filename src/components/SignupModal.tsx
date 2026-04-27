@@ -16,7 +16,11 @@ export default function SignupModal({ open, onClose, onSuccess }: Props) {
 
   function update<K extends keyof typeof form>(k: K, v: typeof form[K]) {
     setForm(prev => ({ ...prev, [k]: v }));
-    setErrors(prev => ({ ...prev, [k]: undefined }));
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[k];
+      return newErrors;
+    });
     setGlobalError(null);
   }
 
@@ -73,26 +77,26 @@ export default function SignupModal({ open, onClose, onSuccess }: Props) {
       <form onSubmit={handleSubmit} className="space-y-3">
         <div>
           <label className="block text-sm font-medium text-slate-700">Username</label>
-          <input value={form.username} onChange={(e) => update("username", e.target.value)} className={`mt-1 block w-full rounded-md border p-2 ${errors.username ? "border-rose-500" : "border-slate-200"}`} />
+          <input value={form.username} onChange={(e) => update("username", e.target.value)} className={`mt-1 block w-full rounded-md border p-2 text-slate-900 ${errors.username ? "border-rose-500" : "border-slate-200"}`} />
           {errors.username && <p className="mt-1 text-xs text-rose-600" role="alert">{errors.username}</p>}
         </div>
 
         <div>
           <label className="block text-sm font-medium text-slate-700">Email</label>
-          <input type="email" value={form.email} onChange={(e) => update("email", e.target.value)} className={`mt-1 block w-full rounded-md border p-2 ${errors.email ? "border-rose-500" : "border-slate-200"}`} />
+          <input type="email" value={form.email} onChange={(e) => update("email", e.target.value)} className={`mt-1 block w-full rounded-md border p-2 text-slate-900 ${errors.email ? "border-rose-500" : "border-slate-200"}`} />
           {errors.email && <p className="mt-1 text-xs text-rose-600" role="alert">{errors.email}</p>}
         </div>
 
         <div>
           <label className="block text-sm font-medium text-slate-700">Password</label>
-          <input type="password" value={form.password} onChange={(e) => update("password", e.target.value)} className={`mt-1 block w-full rounded-md border p-2 ${errors.password ? "border-rose-500" : "border-slate-200"}`} />
+          <input type="password" value={form.password} onChange={(e) => update("password", e.target.value)} className={`mt-1 block w-full rounded-md border p-2 text-slate-900 ${errors.password ? "border-rose-500" : "border-slate-200"}`} />
           <p className="mt-1 text-xs text-slate-400">Use 8+ characters with letters and numbers.</p>
           {errors.password && <p className="mt-1 text-xs text-rose-600" role="alert">{errors.password}</p>}
         </div>
 
         <div>
           <label className="block text-sm font-medium text-slate-700">Name</label>
-          <input value={form.name} onChange={(e) => update("name", e.target.value)} className={`mt-1 block w-full rounded-md border p-2 ${errors.name ? "border-rose-500" : "border-slate-200"}`} />
+          <input value={form.name} onChange={(e) => update("name", e.target.value)} className={`mt-1 block w-full rounded-md border p-2 text-slate-900 ${errors.name ? "border-rose-500" : "border-slate-200"}`} />
           {errors.name && <p className="mt-1 text-xs text-rose-600" role="alert">{errors.name}</p>}
         </div>
 

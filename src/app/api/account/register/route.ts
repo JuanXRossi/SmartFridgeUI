@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import client from "@/api/client";
 import type { RegisterRequest, RegisterResponse } from "@/app/types/api/auth";
