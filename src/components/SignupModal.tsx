@@ -52,7 +52,7 @@ export default function SignupModal({ open, onClose, onSuccess }: Props) {
   const handleClose = useCallback(() => {
     formik.resetForm();
     onClose();
-  }, [onClose, formik]);
+  }, [onClose]);
 
   return (
     <Modal open={open} onClose={handleClose} title="Crea tu cuenta SmartFridge" id="signup-modal">
