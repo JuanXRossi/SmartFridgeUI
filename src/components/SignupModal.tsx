@@ -1,6 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useCallback } from "react";
+import { useFormik } from "formik";
 import Modal from "./ui/Modal";
+import signupSchema from "./schemas/signupSchema";
 
 interface Props {
   open: boolean;
@@ -9,110 +11,90 @@ interface Props {
 }
 
 export default function SignupModal({ open, onClose, onSuccess }: Props) {
-  const [form, setForm] = useState({ username: "", email: "", password: "", name: "", terms: false });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(false);
-  const [globalError, setGlobalError] = useState<string | null>(null);
-
-  function update<K extends keyof typeof form>(k: K, v: typeof form[K]) {
-    setForm(prev => ({ ...prev, [k]: v }));
-    setErrors(prev => {
-      const newErrors = { ...prev };
-      delete newErrors[k];
-      return newErrors;
-    });
-    setGlobalError(null);
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setErrors({});
-    setGlobalError(null);
-
-    const fieldErrors: Record<string, string> = {};
-    if (!form.username.trim()) fieldErrors.username = "Required";
-    if (!form.email.includes("@")) fieldErrors.email = "Invalid email";
-    if (form.password.length < 8) fieldErrors.password = "At least 8 characters";
-    if (!form.name.trim()) fieldErrors.name = "Required";
-    if (!form.terms) fieldErrors.terms = "You must accept the Terms";
-
-    if (Object.keys(fieldErrors).length) {
-      setErrors(fieldErrors);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const resp = await fetch("/api/account/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: form.username,
-          email: form.email,
-          password: form.password,
-          name: form.name,
-          termsAccepted: true,
-        }),
-      });
-      const data = await resp.json();
-      if (!resp.ok) {
-        if (data?.fieldErrors) {
-          setErrors(data.fieldErrors);
-        } else {
-          setGlobalError(data?.message ?? "Registration failed");
+  const formik = useFormik({
+    initialValues: { username: "", email: "", password: "", name: "", terms: false },
+    validationSchema: signupSchema,
+    onSubmit: async (values, { setSubmitting, setErrors, resetForm, setFieldError }) => {
+      try {
+        const resp = await fetch("/api/account/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: values.username,
+            email: values.email,
+            password: values.password,
+            name: values.name,
+            termsAccepted: true,
+          }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+          if (data?.fieldErrors) {
+            setErrors(data.fieldErrors);
+          } else {
+            // set a global field-level error on the form
+            setFieldError("username", data?.message ?? "El registro falló");
+          }
+          return;
         }
-        return;
+        resetForm();
+        onClose();
+        onSuccess();
+      } catch (err) {
+        // set a generic field error
+        setFieldError("username", "Error de red. Por favor, inténtalo más tarde.");
+      } finally {
+        setSubmitting(false);
       }
-      onClose();
-      onSuccess();
-    } catch (err) {
-      setGlobalError("Network error. Please try later.");
-    } finally {
-      setLoading(false);
-    }
-  }
+    },
+  });
+
+  const handleClose = useCallback(() => {
+    formik.resetForm();
+    onClose();
+  }, [onClose, formik]);
 
   return (
-    <Modal open={open} onClose={onClose} title="Create your SmartFridge account" id="signup-modal">
-      <form onSubmit={handleSubmit} className="space-y-3">
+    <Modal open={open} onClose={handleClose} title="Crea tu cuenta SmartFridge" id="signup-modal">
+      <form onSubmit={formik.handleSubmit} className="space-y-3">
         <div>
-          <label className="block text-sm font-medium text-slate-700">Username</label>
-          <input value={form.username} onChange={(e) => update("username", e.target.value)} className={`mt-1 block w-full rounded-md border p-2 text-slate-900 ${errors.username ? "border-rose-500" : "border-slate-200"}`} />
-          {errors.username && <p className="mt-1 text-xs text-rose-600" role="alert">{errors.username}</p>}
+          <label className="block text-sm font-medium text-slate-700">Nombre de usuario</label>
+          <input name="username" value={formik.values.username} onChange={formik.handleChange} onBlur={formik.handleBlur} className={`mt-1 block w-full rounded-md border p-2 text-slate-900 ${formik.touched.username && formik.errors.username ? "border-rose-500" : "border-slate-200"}`} />
+          {formik.touched.username && formik.errors.username && <p className="mt-1 text-xs text-rose-600" role="alert">{formik.errors.username}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">Email</label>
-          <input type="email" value={form.email} onChange={(e) => update("email", e.target.value)} className={`mt-1 block w-full rounded-md border p-2 text-slate-900 ${errors.email ? "border-rose-500" : "border-slate-200"}`} />
-          {errors.email && <p className="mt-1 text-xs text-rose-600" role="alert">{errors.email}</p>}
+          <label className="block text-sm font-medium text-slate-700">Correo electrónico</label>
+          <input name="email" type="email" value={formik.values.email} onChange={formik.handleChange} onBlur={formik.handleBlur} className={`mt-1 block w-full rounded-md border p-2 text-slate-900 ${formik.touched.email && formik.errors.email ? "border-rose-500" : "border-slate-200"}`} />
+          {formik.touched.email && formik.errors.email && <p className="mt-1 text-xs text-rose-600" role="alert">{formik.errors.email}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">Password</label>
-          <input type="password" value={form.password} onChange={(e) => update("password", e.target.value)} className={`mt-1 block w-full rounded-md border p-2 text-slate-900 ${errors.password ? "border-rose-500" : "border-slate-200"}`} />
-          <p className="mt-1 text-xs text-slate-400">Use 8+ characters with letters and numbers.</p>
-          {errors.password && <p className="mt-1 text-xs text-rose-600" role="alert">{errors.password}</p>}
+          <label className="block text-sm font-medium text-slate-700">Contraseña</label>
+          <input name="password" type="password" value={formik.values.password} onChange={formik.handleChange} onBlur={formik.handleBlur} className={`mt-1 block w-full rounded-md border p-2 text-slate-900 ${formik.touched.password && formik.errors.password ? "border-rose-500" : "border-slate-200"}`} />
+          <p className="mt-1 text-xs text-slate-400">Usa 8+ caracteres con letras y números.</p>
+          {formik.touched.password && formik.errors.password && <p className="mt-1 text-xs text-rose-600" role="alert">{formik.errors.password}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">Name</label>
-          <input value={form.name} onChange={(e) => update("name", e.target.value)} className={`mt-1 block w-full rounded-md border p-2 text-slate-900 ${errors.name ? "border-rose-500" : "border-slate-200"}`} />
-          {errors.name && <p className="mt-1 text-xs text-rose-600" role="alert">{errors.name}</p>}
+          <label className="block text-sm font-medium text-slate-700">Nombre</label>
+          <input name="name" value={formik.values.name} onChange={formik.handleChange} onBlur={formik.handleBlur} className={`mt-1 block w-full rounded-md border p-2 text-slate-900 ${formik.touched.name && formik.errors.name ? "border-rose-500" : "border-slate-200"}`} />
+          {formik.touched.name && formik.errors.name && <p className="mt-1 text-xs text-rose-600" role="alert">{formik.errors.name}</p>}
         </div>
 
         <div className="flex items-start gap-3">
-          <input id="terms" type="checkbox" checked={form.terms} onChange={(e) => update("terms", e.target.checked)} className="h-4 w-4 rounded text-lime-500 focus:ring-lime-300" />
-          <label htmlFor="terms" className="text-sm text-slate-700">I agree to the <a className="text-sky-600 underline" href="#">Terms of Service</a> and <a className="text-sky-600 underline" href="#">Privacy Policy</a>.</label>
+          <input id="terms" name="terms" type="checkbox" checked={formik.values.terms} onChange={formik.handleChange} className="h-4 w-4 rounded text-lime-500 focus:ring-lime-300" />
+          <label htmlFor="terms" className="text-sm text-slate-700">Acepto los <a className="text-sky-600 underline" href="#">Términos de Servicio</a> y la <a className="text-sky-600 underline" href="#">Política de Privacidad</a>.</label>
         </div>
-        {errors.terms && <p className="mt-1 text-xs text-rose-600" role="alert">{errors.terms}</p>}
+        {formik.touched.terms && formik.errors.terms && <p className="mt-1 text-xs text-rose-600" role="alert">{formik.errors.terms}</p>}
 
-        {globalError && <p className="text-sm text-rose-600" role="alert">{globalError}</p>}
+        {formik.errors.username && !formik.touched.username && <p className="text-sm text-rose-600" role="alert">{formik.errors.username}</p>}
 
         <div className="flex gap-2 mt-4">
-          <button type="submit" disabled={loading} className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900 rounded-md py-2 font-medium disabled:opacity-60">
-            {loading ? "Creating..." : "Create account"}
+          <button type="submit" disabled={formik.isSubmitting} className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900 rounded-md py-2 font-medium disabled:opacity-60">
+            {formik.isSubmitting ? "Creando..." : "Crear cuenta"}
           </button>
-          <button type="button" onClick={onClose} className="px-4 py-2 border rounded-md text-slate-700">Cancel</button>
+          <button type="button" onClick={handleClose} className="px-4 py-2 border rounded-md text-slate-700">Cancelar</button>
         </div>
       </form>
     </Modal>

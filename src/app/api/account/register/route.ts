@@ -13,17 +13,17 @@ export async function POST(req: Request) {
     );
     if (missing.length) {
       const fieldErrors = missing.reduce((acc: Record<string, string>, k: string) => {
-        acc[k] = "Required";
+        acc[k] = "Requerido";
         return acc;
       }, {});
       return NextResponse.json(
-        { success: false, message: "Missing required fields", fieldErrors },
+        { success: false, message: "Faltan campos requeridos", fieldErrors },
         { status: 400 }
       );
     }
 
     if (body.termsAccepted !== true) {
-      return NextResponse.json({ success: false, message: "You must accept the Terms & Privacy Policy" }, { status: 400 });
+      return NextResponse.json({ success: false, message: "Debes aceptar los Términos y la Política de Privacidad" }, { status: 400 });
     }
 
     const resp = await client.post<RegisterResponse>("/account/register", {
@@ -39,8 +39,8 @@ export async function POST(req: Request) {
     if (error?.response?.data) {
       const data = error.response.data;
       const fieldErrors = data?.fieldErrors ?? data?.errors ?? undefined;
-      return NextResponse.json({ success: false, message: data.message ?? "Registration failed", fieldErrors }, { status: error.response.status ?? 500 });
+      return NextResponse.json({ success: false, message: data.message ?? "El registro falló", fieldErrors }, { status: error.response.status ?? 500 });
     }
-    return NextResponse.json({ success: false, message: "Unexpected server error" }, { status: 500 });
+    return NextResponse.json({ success: false, message: "Error inesperado del servidor" }, { status: 500 });
   }
 }

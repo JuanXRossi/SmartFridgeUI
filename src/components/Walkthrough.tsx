@@ -1,8 +1,8 @@
 export default function Walkthrough() {
   const steps = [
-    { title: "Add items", desc: "Add products and quantities to your family fridge." },
-    { title: "Track stock", desc: "SmartFridge updates urgency and stock levels." },
-    { title: "Generate list", desc: "Request a shopping list and get a ready-to-shop list." },
+    { title: "Agrega artículos", desc: "Agrega productos y cantidades a tu nevera familiar." },
+    { title: "Controla el stock", desc: "SmartFridge actualiza la urgencia y los niveles de stock." },
+    { title: "Genera lista", desc: "Solicita una lista de compra y obtén una lista lista para comprar." },
   ];
 
   return (

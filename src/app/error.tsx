@@ -7,8 +7,8 @@ export default function Error({ error }: { error: Error }) {
   }, [error]);
   return (
     <div className="p-8 text-center">
-      <h2 className="text-xl font-semibold">Something went wrong</h2>
-      <p className="mt-2 text-sm text-slate-600">Please try again later.</p>
+      <h2 className="text-xl font-semibold">Algo salió mal</h2>
+      <p className="mt-2 text-sm text-slate-600">Por favor, inténtalo más tarde.</p>
     </div>
   );
 }
