@@ -25,7 +25,16 @@ export default function NewsletterSignup() {
         <input name="email" type="email" placeholder="tu@dominio.com" value={formik.values.email} onChange={formik.handleChange} className="flex-1 rounded-md border p-2" />
         <button type="submit" disabled={formik.isSubmitting} className="bg-sky-600 text-white rounded-md px-4 py-2">Suscribirse</button>
       </form>
-      {sent && <div className="mt-2 text-sm text-slate-600">Gracias — recibirás actualizaciones mensualmente.</div>}
+      {sent && (
+        <div
+          className="mt-2 text-sm text-slate-600"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          Gracias — recibirás actualizaciones mensualmente.
+        </div>
+      )}
       </section>
     </div>
   );
