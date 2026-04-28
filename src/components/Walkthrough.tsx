@@ -6,7 +6,8 @@ export default function Walkthrough() {
   ];
 
   return (
-    <section className="max-w-6xl mx-auto px-6 py-10">
+    <div className="w-full bg-[var(--color-sky-cream)] py-16">
+      <section className="max-w-6xl mx-auto px-6">
       <div className="grid md:grid-cols-3 gap-6">
         {steps.map((s, i) => (
           <div key={i} className="p-4 text-center">
@@ -16,6 +17,7 @@ export default function Walkthrough() {
           </div>
         ))}
       </div>
-    </section>
+      </section>
+    </div>
   );
 }

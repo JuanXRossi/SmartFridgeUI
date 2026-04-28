@@ -3,6 +3,10 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Custom brand background colors */
+  --color-sky-cream: #EAF4FB; /* creamy sky blue */
+  --color-lime-cream: #EDFAE6; /* creamy lime green */
+  --color-footer-blue: #2A7FAF; /* darker sky blue for footer */
 }
 
 @theme inline {
