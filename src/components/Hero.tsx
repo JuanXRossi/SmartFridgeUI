@@ -1,8 +1,10 @@
+import Image from "next/image";
+
 export default function Hero() {
   return (
     <div className="w-full bg-[var(--color-sky-cream)] py-16">
       <section className="mx-auto max-w-xl text-center px-6">
-      <img src="/SmartFridgeLogo.png" alt="SmartFridge — intelligent kitchen stock manager" className="mx-auto w-40 sm:w-64" />
+      <Image src="/SmartFridgeLogo.png" alt="SmartFridge — gestor inteligente de inventario de cocina" width={256} height={256} className="mx-auto w-40 sm:w-64" priority />
       <h1 className="mt-6 text-3xl sm:text-4xl font-extrabold text-sky-900">Keep Your Kitchen Stocked, Effortlessly</h1>
       <p className="mt-3 text-lg text-slate-600">Family-friendly inventory, smart shopping lists, and restock reminders.</p>
       <div className="mt-6">
