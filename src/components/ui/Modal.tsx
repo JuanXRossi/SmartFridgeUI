@@ -9,6 +9,13 @@ interface ModalProps {
   id?: string;
 }
 
+const styles = {
+    overlay: "fixed inset-0 z-50 flex items-start justify-center overflow-auto bg-slate-900/60 p-4",
+    dialog: "mx-auto mt-16 max-w-md bg-white rounded-lg shadow-xl p-6",
+    title: "text-lg font-semibold text-sky-900",
+    content: "mt-4",
+  };
+
 export default function Modal({ open, onClose, title, children, id = "modal" }: ModalProps) {
   const overlayRef = useRef<HTMLDivElement | null>(null);
 
@@ -31,15 +38,12 @@ export default function Modal({ open, onClose, title, children, id = "modal" }: 
   }, [open, onClose]);
 
   if (!open) return null;
+
   return (
-    <div
-      ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-auto bg-slate-900/60 p-4"
-      aria-hidden={!open}
-    >
-      <div id={id} role="dialog" aria-modal="true" aria-labelledby={`${id}-title`} className="mx-auto mt-16 max-w-md bg-white rounded-lg shadow-xl p-6">
-        {title && <h2 id={`${id}-title`} className="text-lg font-semibold text-sky-900">{title}</h2>}
-        <div className="mt-4">{children}</div>
+    <div ref={overlayRef} className={styles.overlay} aria-hidden={!open}>
+      <div id={id} role="dialog" aria-modal="true" aria-labelledby={`${id}-title`} className={styles.dialog}>
+        {title && <h2 id={`${id}-title`} className={styles.title}>{title}</h2>}
+        <div className={styles.content}>{children}</div>
       </div>
     </div>
   );
