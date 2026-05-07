@@ -13,6 +13,18 @@ export interface RegisterResponse {
   familyId?: string;
 }
 
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  id: string;
+  email: string;
+  username: string;
+  familyId?: string;
+}
+
 export interface NormalizedApiResponse<T = unknown> {
   success: boolean;
   data?: T;
