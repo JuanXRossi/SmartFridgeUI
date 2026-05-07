@@ -21,7 +21,7 @@ const SLIDE_INTERVAL = 5000;
 const SWIPE_THRESHOLD = 50;
 
 const styles = {
-  container: "w-full bg-[var(--color-lime-cream)] py-16",
+  container: "w-full bg-[var(--color-lime-cream)] py-12",
   section: "max-w-6xl mx-auto px-6",
   carouselWrapper: "relative w-full overflow-hidden rounded-lg",
   
