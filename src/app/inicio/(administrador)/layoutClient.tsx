@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Menu } from "lucide-react";
 import Headbar from "@/app/components/Headbar";
-import Sidebar from "./components/Sidebar";
+import Sidebar from "@/app/components/administrador/Sidebar";
 
 const styles = {
   root: "min-h-screen bg-gradient-to-br from-[#EAF4FB] via-white to-[#EDFAE6]",
@@ -23,11 +23,11 @@ const mockUser = {
   role: "Administradora",
 };
 
-interface AdminLayoutProps {
+interface LayoutClientProps {
   children: React.ReactNode;
 }
 
-export default function LayoutClient({ children }: AdminLayoutProps) {
+export default function LayoutClient({ children }: LayoutClientProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleSignOut = () => {
