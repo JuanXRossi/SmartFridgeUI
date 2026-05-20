@@ -1,6 +1,7 @@
 "use client"
 import { ReactNode, useState } from "react";
 import LoginModal from "./LoginModal";
+import { useRouter } from "next/navigation";
 
 const styles = {
     bannerContainer: "fixed top-20 left-1/2 transform -translate-x-1/2 z-50",
@@ -9,6 +10,7 @@ const styles = {
   };
 
 export default function LoginModalClientWrapper({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
 
@@ -17,6 +19,10 @@ export default function LoginModalClientWrapper({ children }: { children: ReactN
 
   function onSuccess() {
     setShowVerification(true);
+
+    setTimeout(() => {
+      router.replace("/inicio");
+    }, 1500);
   }
 
   return (
