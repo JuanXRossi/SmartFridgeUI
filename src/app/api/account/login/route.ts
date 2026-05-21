@@ -3,6 +3,13 @@ import { NextResponse } from "next/server";
 import client from "@/api/client";
 import type { LoginRequest, LoginResponse } from "@/app/types/api/auth";
 
+const COOKIE_OPTS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict" as const,
+  path: "/",
+};
+
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as LoginRequest;
@@ -28,12 +35,25 @@ export async function POST(req: Request) {
         password: body.password,
     });
 
-    return NextResponse.json({ success: true, data: resp.data }, { status: 200 });
+    const { userName, email, token, refreshToken } = resp.data;
+
+    const response = NextResponse.json({ success: true, user: { userName, email } }, { status: 200 });
+
+    response.cookies.set("auth_token", token, {
+      ...COOKIE_OPTS,
+      maxAge: 60 * 20,
+    });
+    response.cookies.set("refresh_token", refreshToken, {
+      ...COOKIE_OPTS,
+      maxAge: 60 * 60 * 24 * 7,
+    });
+
+    return response;
   } catch (err: unknown) {
     const error = err as any;
 
     if (error?.response?.data) {
-        const data = error.rsponse.data;
+        const data = error.response.data;
         const fieldErrors = data?.fieldErrors ?? data?.errors ?? undefined;
 
         return NextResponse.json({ success: false, message: data.message ?? "El inicio de sesión falló", fieldErrors }, { status: error.response.status ?? 500 })

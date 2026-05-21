@@ -18,11 +18,24 @@ export interface LoginRequest {
   password: string;
 }
 
-export interface LoginResponse {
-  id: string;
+export interface AuthUser {
+  userName: string;
+  name: string;
+  initials: string;
   email: string;
-  username: string;
-  familyId?: string;
+  roles: string;
+}
+
+export interface AuthState {
+  session: boolean;
+  user: AuthUser | null;
+}
+
+export interface LoginResponse {
+  userName: string;
+  email: string;
+  token: string;
+  refreshToken: string;
 }
 
 export interface NormalizedApiResponse<T = unknown> {

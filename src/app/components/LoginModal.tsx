@@ -7,7 +7,7 @@ import loginSchema from "./schemas/loginSchema";
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSuccess: () => void; // used to show verification banner
+  onSuccess: () => void;
 }
 
 const styles ={
