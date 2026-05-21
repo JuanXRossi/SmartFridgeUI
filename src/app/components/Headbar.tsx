@@ -34,11 +34,12 @@ const styles = {
 
 interface HeadbarProps {
   user: {
+    userName: string;
     name: string;
-    email: string;
     initials: string;
+    email: string;
     role: string;
-  };
+  } | null;
   onSignOut?: () => void;
 }
 
@@ -58,48 +59,52 @@ export default function Headbar({ user, onSignOut }: HeadbarProps) {
         </button>
 
         <div className="relative">
-          <div
-            className={styles.userBtn}
-            onClick={() => setMenuOpen((v) => !v)}
-            role="button"
-            aria-expanded={menuOpen}
-            aria-label="Menú de usuario"
-          >
-            <div className={styles.avatar}>{user.initials}</div>
-            <div className="flex flex-col items-start leading-tight hidden sm:flex">
-              <span className={styles.userName}>{user.name}</span>
-              <span className={styles.userRole}>{user.role}</span>
-            </div>
-            <ChevronDown
-              size={14}
-              className={`text-slate-400 transition-transform ${menuOpen ? "rotate-180" : ""}`}
-            />
-          </div>
-
-          {menuOpen && (
+          {user ? (
             <>
               <div
-                className="fixed inset-0 z-40"
-                onClick={() => setMenuOpen(false)}
-              />
-              <div className={`${styles.dropdown} relative z-50`}>
-                <div className={styles.dropdownHeader}>
-                  <p className={styles.dropdownName}>{user.name}</p>
-                  <p className={styles.dropdownEmail}>{user.email}</p>
+                className={styles.userBtn}
+                onClick={() => setMenuOpen((v) => !v)}
+                role="button"
+                aria-expanded={menuOpen}
+                aria-label="Menú de usuario"
+              >
+                <div className={styles.avatar}>{user.initials}</div>
+                <div className="flex flex-col items-start leading-tight hidden sm:flex">
+                  <span className={styles.userName}>{user.name}</span>
+                  <span className={styles.userRole}>{user.role}</span>
                 </div>
-                <button
-                  className={`${styles.dropdownItem} w-full`}
-                  onClick={() => {
-                    setMenuOpen(false);
-                    onSignOut?.();
-                  }}
-                >
-                  <LogOut size={15} className={styles.dropdownItemIcon} />
-                  Cerrar sesión
-                </button>
+                <ChevronDown
+                  size={14}
+                  className={`text-slate-400 transition-transform ${menuOpen ? "rotate-180" : ""}`}
+                />
               </div>
+
+              {menuOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setMenuOpen(false)}
+                  />
+                  <div className={`${styles.dropdown} relative z-50`}>
+                    <div className={styles.dropdownHeader}>
+                      <p className={styles.dropdownName}>{user.name}</p>
+                      <p className={styles.dropdownEmail}>{user.email}</p>
+                    </div>
+                    <button
+                      className={`${styles.dropdownItem} w-full`}
+                      onClick={() => {
+                        setMenuOpen(false);
+                        onSignOut?.();
+                      }}
+                    >
+                      <LogOut size={15} className={styles.dropdownItemIcon} />
+                      Cerrar sesión
+                    </button>
+                  </div>
+                </>
+              )}
             </>
-          )}
+          ) : null}
         </div>
       </div>
     </header>

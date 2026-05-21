@@ -1,18 +1,19 @@
+"use client"
+
 import { Package, AlertTriangle, ShoppingCart, Users } from "lucide-react";
-import LayoutClient from "./layoutClient";
 import DashboardCard from "./components/DashboardCard";
+import { useContext } from "react";
+import { AuthContext } from "@/app/context/AuthContext";
 
 const styles = {
-  // Greeting section
   greetingSection: "mb-10",
   eyebrow:
-    "text-xs font-semibold uppercase tracking-widest text-teal-500 mb-1",
+    "text-xs font-semibold uppercase tracking-widest text-teal-500 -mb-6 py-16",
   heading:
-    "text-3xl md:text-4xl font-extrabold text-slate-800 leading-tight mb-2 py-6",
+    "text-3xl md:text-4xl font-extrabold text-slate-800 leading-tight mb-2",
   headingAccent: "text-teal-500",
   subheading: "text-slate-500 text-base",
 
-  // Summary chips row
   chipsRow: "flex flex-wrap gap-3 mt-5",
   chip: "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-white border border-sky-100 text-slate-600 shadow-sm",
   chipDot: "w-2 h-2 rounded-full",
@@ -20,15 +21,12 @@ const styles = {
   chipDotAmber: "bg-amber-400",
   chipDotSky: "bg-sky-400",
 
-  // Divider
   divider: "border-t border-sky-100 my-8",
 
-  // Cards grid
   sectionTitle: "text-xs font-semibold uppercase tracking-widest text-slate-400 mb-5",
   cardsGrid:
     "grid grid-cols-1 sm:grid-cols-2 gap-5 mb-10",
 
-  // Quick-actions row
   quickRow: "grid grid-cols-1 sm:grid-cols-2 gap-4",
   quickCard:
     "group flex items-center gap-4 p-4 rounded-2xl bg-white border border-sky-100 hover:border-sky-200 hover:shadow-md transition-all duration-200 cursor-pointer",
@@ -43,12 +41,14 @@ const styles = {
 };
 
 export default function AdminHomePage() {
+  const { state } = useContext(AuthContext);
+
   return (
-    <LayoutClient>
+    <>
       <section className={styles.greetingSection}>
         <p className={styles.eyebrow}>Panel de administración</p>
         <h1 className={styles.heading}>
-          Hola, <span className={styles.headingAccent}>María</span> 👋
+          Hola, <span className={styles.headingAccent}>{state.user?.name}</span> 👋
         </h1>
         <p className={styles.subheading}>
           Aquí tenés el resumen del estado del hogar de hoy.
@@ -119,6 +119,6 @@ export default function AdminHomePage() {
           <span className={styles.quickArrow}>›</span>
         </a>
       </div>
-    </LayoutClient>
+    </>
   );
 }
