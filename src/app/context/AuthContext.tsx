@@ -27,8 +27,7 @@ const login =
   };
 
 const logout =
-  (dispatch: React.Dispatch<Action>) => async () => {
-    await fetch("/api/account/logout", { method: "POST" });
+  (dispatch: React.Dispatch<Action>) => () => {
     dispatch({ type: "LOGOUT" });
   };
 

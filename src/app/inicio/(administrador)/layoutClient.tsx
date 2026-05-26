@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
 import { Menu } from "lucide-react";
 import Headbar from "@/app/components/Headbar";
@@ -17,6 +18,8 @@ const styles = {
   content:
     "flex-1 min-w-0 md:ml-64 transition-all duration-300",
   inner: "w-full px-4 md:px-8 py-8",
+  logoutErrNotification: "fixed top-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-rose-50 border border-rose-100 text-rose-800 px-4 py-2 rounded-md shadow",
+  logoutErrNotificationDismissBtn: "ml-3 text-slate-600",
 };
 
 interface LayoutClientProps {
@@ -25,8 +28,26 @@ interface LayoutClientProps {
 }
 
 function LayoutShell({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const { state, actions } = useContext(AuthContext);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [logoutError, setLogoutError] = useState(false);
+
+  async function handleLogout () {
+    try {
+      const resp = await fetch("/api/account/logout", { method: "POST" });
+
+      if (!resp.ok) {
+        setLogoutError(true);
+        return;
+      }
+
+      actions.logout();
+      router.replace("/");
+    } catch {
+      setLogoutError(true);
+    }
+  }
 
   const user = state.user
     ? {
@@ -40,7 +61,20 @@ function LayoutShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className={styles.root}>
-      <Headbar user={user} onSignOut={actions.logout} />
+      <Headbar user={user} onSignOut={() => handleLogout()} />
+
+      {logoutError && (
+        <div className={styles.logoutErrNotification}>
+          <span>Error al cerrar sesión. Por favor, inténtalo de nuevo.</span>
+          <button
+            className={styles.logoutErrNotificationDismissBtn}
+            aria-label="Descartar"
+            onClick={() => setLogoutError(false)}
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       <button
         className={styles.menuBtn}

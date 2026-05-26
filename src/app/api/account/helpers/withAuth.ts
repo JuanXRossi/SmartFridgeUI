@@ -67,12 +67,15 @@ export async function withAuth<T>(
       `refresh_token=${newRefreshToken}; Max-Age=${60 * 60 * 24 * 7}; ${cookieOpts}`,
     ].join(", ");
   } catch {
-    return {
-      error: NextResponse.json(
-        { success: false, message: "Sesión expirada", expired: true },
-        { status: 401 }
-      ),
-    };
+    const response = NextResponse.json(
+      { success: false, message: "Sesión expirada", expired: true },
+      { status: 401 }
+    );
+
+    response.cookies.set("auth_token", "", { maxAge: 0, path: "/" });
+    response.cookies.set("refresh_token", "", { maxAge: 0, path: "/" });
+
+    return { error: response };
   }
 
   try {
