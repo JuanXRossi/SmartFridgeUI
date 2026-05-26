@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import client from "@/api/client";
-import type { LoginRequest, LoginResponse } from "@/app/types/api/auth";
+import type { LoginRequest, UserResponse } from "@/app/types/api/auth";
 
 const COOKIE_OPTS = {
   httpOnly: true,
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const resp = await client.post<LoginResponse>("/account/login", {
+    const resp = await client.post<UserResponse>("/account/login", {
         username: body.username,
         password: body.password,
     });

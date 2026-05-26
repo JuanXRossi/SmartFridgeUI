@@ -6,16 +6,16 @@ export interface RegisterRequest {
   termsAccepted: boolean;
 }
 
-export interface RegisterResponse {
-  id: string;
-  email: string;
-  username: string;
-  familyId?: string;
-}
-
 export interface LoginRequest {
   username: string;
   password: string;
+}
+
+export interface UserResponse {
+  userName: string;
+  email: string;
+  token: string;
+  refreshToken: string;
 }
 
 export interface AuthUser {
@@ -29,13 +29,6 @@ export interface AuthUser {
 export interface AuthState {
   session: boolean;
   user: AuthUser | null;
-}
-
-export interface LoginResponse {
-  userName: string;
-  email: string;
-  token: string;
-  refreshToken: string;
 }
 
 export interface NormalizedApiResponse<T = unknown> {
