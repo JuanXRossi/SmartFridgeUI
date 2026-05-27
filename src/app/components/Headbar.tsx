@@ -4,6 +4,8 @@ import { Bell, LogOut, ChevronDown } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 
+const DROPDOWN_ANIMATION_MS = 180;
+
 const styles = {
   header:
     "fixed top-0 left-0 right-0 z-30 h-16 flex items-center justify-between px-4 md:px-8 border-b border-sky-100 bg-[#EAF4FB]/80 backdrop-blur-md",
@@ -20,11 +22,13 @@ const styles = {
     "w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-lime-400 flex items-center justify-center text-white font-bold text-xs shadow shrink-0",
   userName: "text-slate-700 text-sm font-medium hidden sm:block",
   userRole: "text-slate-400 text-xs hidden sm:block leading-tight",
-  chevron: "text-slate-400 transition-transform shrink-0",
+  chevron: "text-slate-400 shrink-0 transition-transform duration-200",
   chevronOpen: "rotate-180",
   overlay: "fixed inset-0 z-40",
   dropdown:
-    "fixed top-14 right-4 md:right-8 w-52 bg-white rounded-2xl shadow-xl border border-sky-100 overflow-hidden z-50",
+    "fixed top-14 right-4 md:right-8 w-52 bg-white rounded-2xl shadow-xl border border-sky-100 overflow-hidden z-50 origin-top-right",
+  dropdownEnter: "animate-dropdown-enter",
+  dropdownLeave: "animate-dropdown-leave",
   dropdownHeader: "px-4 py-3 bg-[#EAF4FB]/60 border-b border-sky-100",
   dropdownName: "text-slate-700 font-semibold text-sm",
   dropdownEmail: "text-slate-400 text-xs mt-0.5",
@@ -46,18 +50,35 @@ interface HeadbarProps {
 
 export default function Headbar({ user, onSignOut }: HeadbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const openMenu = () => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    setIsVisible(true);
+    requestAnimationFrame(() => setMenuOpen(true));
+  };
+
+  const closeMenu = () => {
+    setMenuOpen(false);
+    closeTimerRef.current = setTimeout(() => setIsVisible(false), DROPDOWN_ANIMATION_MS);
+  };
+
+  const toggleMenu = () => (isVisible ? closeMenu() : openMenu());
+
+  useEffect(() => () => { if (closeTimerRef.current) clearTimeout(closeTimerRef.current); }, []);
 
   useEffect(() => {
-    if (!menuOpen) return;
+    if (!isVisible) return;
     const handler = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
+        closeMenu();
       }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [menuOpen]);
+  }, [isVisible]);
 
   return (
     <header className={styles.header}>
@@ -82,7 +103,7 @@ export default function Headbar({ user, onSignOut }: HeadbarProps) {
           <div ref={menuRef}>
             <button
               className={styles.userBtn}
-              onClick={() => setMenuOpen((v) => !v)}
+              onClick={toggleMenu}
               aria-expanded={menuOpen}
               aria-haspopup="true"
               aria-label="Menú de usuario"
@@ -98,15 +119,18 @@ export default function Headbar({ user, onSignOut }: HeadbarProps) {
               />
             </button>
 
-            {menuOpen && (
+            {isVisible && (
               <>
                 <div
                   className={styles.overlay}
-                  onClick={() => setMenuOpen(false)}
+                  onClick={closeMenu}
                   aria-hidden="true"
                 />
 
-                <div className={styles.dropdown} role="menu">
+                <div
+                  className={`${styles.dropdown} ${menuOpen ? styles.dropdownEnter : styles.dropdownLeave}`}
+                  role="menu"
+                >
                   <div className={styles.dropdownHeader}>
                     <p className={styles.dropdownName}>{user.name}</p>
                     <p className={styles.dropdownEmail}>{user.email}</p>
@@ -115,7 +139,7 @@ export default function Headbar({ user, onSignOut }: HeadbarProps) {
                     className={styles.dropdownItem}
                     role="menuitem"
                     onClick={() => {
-                      setMenuOpen(false);
+                      closeMenu();
                       onSignOut?.();
                     }}
                   >
