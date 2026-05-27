@@ -71,13 +71,23 @@ export default function Headbar({ user, onSignOut }: HeadbarProps) {
 
   useEffect(() => {
     if (!isVisible) return;
-    const handler = (e: MouseEvent) => {
+    const handleMouseDown = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         closeMenu();
       }
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    
+    const handleScroll = () => closeMenu();
+ 
+    document.addEventListener("mousedown", handleMouseDown);
+    window.addEventListener("scroll", handleScroll, { capture: true, passive: true });
+    window.addEventListener("touchmove", handleScroll, { capture: true, passive: true });
+ 
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      window.removeEventListener("scroll", handleScroll, { capture: true });
+      window.removeEventListener("touchmove", handleScroll, { capture: true });
+    };
   }, [isVisible]);
 
   return (
