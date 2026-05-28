@@ -1,17 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getInternalApiUrl } from "./api/internalClient";
 
 const PUBLIC_ROUTES = ["/"];
 const AUTH_ROUTES = ["/api/account/login", "/api/account/register", "/api/account/refresh"];
 
 const REFRESH_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
-
-function getInternalApiUrl(): string {
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-  const port = process.env.PORT || 3000;
-  return `http://localhost:${port}`;
-}
 
 function decodeJWT(token: string): { exp?: number } | null {
   try {
@@ -40,8 +33,7 @@ async function refreshTokens(
   }
 
   try {
-    const refreshResp = await fetch(
-      `${getInternalApiUrl()}/api/account/refresh`,
+    const refreshResp = await fetch(getInternalApiUrl("/api/account/refresh"),
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -78,6 +70,13 @@ async function refreshTokens(
   }
 }
 
+function redirectToLandingPage(url: string): NextResponse {
+  const redirect = NextResponse.redirect(new URL("/", url));
+  redirect.cookies.set("auth_token", "", { maxAge: 0, path: "/" });
+  redirect.cookies.set("refresh_token", "", { maxAge: 0, path: "/" });
+  return redirect;
+}
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
@@ -86,15 +85,10 @@ export async function middleware(req: NextRequest) {
   }
 
   const token = req.cookies.get("auth_token")?.value;
+  const decoded = token ? decodeJWT(token) : null;
 
-  if (!token) {
-    return NextResponse.redirect(new URL("/", req.url));
-  }
-
-  const decoded = decodeJWT(token);
-
-  if (!decoded?.exp) {
-    return NextResponse.redirect(new URL("/", req.url));
+  if (!token || !decoded?.exp) {
+    return redirectToLandingPage(req.url);
   }
 
   const expiresAt = decoded.exp * 1000;
@@ -104,12 +98,7 @@ export async function middleware(req: NextRequest) {
   if (shouldRefresh) {
     const res = NextResponse.next();
     const refreshSuccess = await refreshTokens(req, res);
-
-    if (!refreshSuccess) {
-      return NextResponse.redirect(new URL("/", req.url));
-    }
-
-    return res;
+    return refreshSuccess ? res : redirectToLandingPage(req.url);
   }
 
   return NextResponse.next();

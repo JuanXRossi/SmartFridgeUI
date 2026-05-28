@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { cookies } from "next/headers";
 import { AuthState, AuthUser } from "@/app/types/api/auth";
 import { getInternalApiUrl } from "@/api/internalClient";
 import LayoutClient from "./layoutClient";
@@ -24,8 +26,15 @@ async function getSessionUser(): Promise<AuthUser | null> {
   try {
     console.log("[getSessionUser] Fetching session user from /api/account/me");
 
+    const cookieStore = await cookies();
+    const cookieHeader = cookieStore.getAll()
+      .map(({ name, value }) => `${name}=${value}`)
+      .join("; ");
+
     const resp = await fetch(getInternalApiUrl("/api/account/me"), {
-      credentials: "include",
+      headers: {
+        Cookie: cookieHeader,
+      },
       cache: "no-store",
     });
 
