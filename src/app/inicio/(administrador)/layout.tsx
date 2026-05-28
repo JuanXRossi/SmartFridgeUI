@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { cookies } from "next/headers";
-import client from "@/api/client";
-import { AuthState, AuthUser, UserResponse } from "@/app/types/api/auth";
+import { AuthState, AuthUser } from "@/app/types/api/auth";
+import { getInternalApiUrl } from "@/api/internalClient";
 import LayoutClient from "./layoutClient";
 
 function getInitials(name: string): string {
@@ -22,39 +20,32 @@ function buildAuthUser(data: AuthUser): AuthUser {
   } as AuthUser;
 }
 
-//TO-DO: ver si es posible mover la lógica de conexión a archivos modulares en carpeta /api
 async function getSessionUser(): Promise<AuthUser | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("auth_token")?.value;
-  if (!token) return null;
-
   try {
-    const resp = await client.get<AuthUser>("/account/me", {
-      headers: { Authorization: `Bearer ${token}` },
+    console.log("[getSessionUser] Fetching session user from /api/account/me");
+
+    const resp = await fetch(getInternalApiUrl("/api/account/me"), {
+      credentials: "include",
+      cache: "no-store",
     });
 
-    return buildAuthUser(resp.data);
-  } catch (err: any) {
-    if (err.response?.status !== 401) return null;
-
-    const refreshToken = cookieStore.get("refresh_token")?.value;
-    if (!refreshToken) return null;
-
-    try {
-      const refreshResp = await client.post<UserResponse>("/account/refresh", {
-        refreshToken,
-      });
-
-      const { token: refreshedToken } = refreshResp.data;
-
-      const resp = await client.get<AuthUser>("/account/me", {
-        headers: { Authorization: `Bearer ${refreshedToken}` },
-      });
-
-      return buildAuthUser(resp.data);
-    } catch {
+    if (!resp.ok) {
+      if (resp.status === 401) {
+        console.log("[getSessionUser] Received 401 - session expired or invalid");
+      } else {
+        console.error("[getSessionUser] HTTP error:", { status: resp.status, statusText: resp.statusText });
+      }
       return null;
     }
+
+    const json = await resp.json();
+    const user = buildAuthUser(json.data);
+
+    console.log("[getSessionUser] Successfully retrieved user:", { userName: user.userName, name: user.name });
+    return user;
+  } catch (err: any) {
+    console.error("[getSessionUser] Unexpected error:", { message: err?.message, stack: err?.stack });
+    return null;
   }
 }
 
