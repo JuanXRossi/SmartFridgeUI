@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import client from "@/api/client";
 import type { LoginRequest, UserResponse } from "@/app/types/api/auth";
+import { AUTH_COOKIE_MAX_AGE_S, REFRESH_COOKIE_MAX_AGE_S } from "@/app/constants/values";
 
 const COOKIE_OPTS = {
   httpOnly: true,
@@ -41,11 +42,11 @@ export async function POST(req: Request) {
 
     response.cookies.set("auth_token", token, {
       ...COOKIE_OPTS,
-      maxAge: 60 * 20,
+      maxAge: AUTH_COOKIE_MAX_AGE_S,
     });
     response.cookies.set("refresh_token", refreshToken, {
       ...COOKIE_OPTS,
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: REFRESH_COOKIE_MAX_AGE_S,
     });
 
     return response;

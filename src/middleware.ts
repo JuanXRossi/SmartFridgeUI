@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getInternalApiUrl } from "./api/internalClient";
+import { AUTH_COOKIE_MAX_AGE_S, REFRESH_COOKIE_MAX_AGE_S, REFRESH_THRESHOLD_S } from "./app/constants/values";
 
 const PUBLIC_ROUTES = ["/"];
 const AUTH_ROUTES = ["/api/account/login", "/api/account/register", "/api/account/refresh"];
-
-const REFRESH_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
 
 function decodeJWT(token: string): { exp?: number } | null {
   try {
@@ -53,7 +52,7 @@ async function refreshTokens(
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 20,
+      maxAge: AUTH_COOKIE_MAX_AGE_S,
     });
 
     res.cookies.set("refresh_token", newRefreshToken, {
@@ -61,7 +60,7 @@ async function refreshTokens(
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: REFRESH_COOKIE_MAX_AGE_S,
     });
 
     return true;
@@ -93,7 +92,7 @@ export async function middleware(req: NextRequest) {
 
   const expiresAt = decoded.exp * 1000;
   const now = Date.now();
-  const shouldRefresh = expiresAt <= now + REFRESH_THRESHOLD_MS;
+  const shouldRefresh = expiresAt <= now + REFRESH_THRESHOLD_S * 1000;
 
   if (shouldRefresh) {
     const res = NextResponse.next();
