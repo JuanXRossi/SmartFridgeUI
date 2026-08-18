@@ -2,10 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { getInternalApiUrl } from "./api/internalClient";
 import { AUTH_COOKIE_MAX_AGE_S, REFRESH_COOKIE_MAX_AGE_S, REFRESH_THRESHOLD_S } from "./app/constants/values";
 
+const ROLE_ROUTES: Record<string, string[]> = {
+  "/administrador": ["Admin"],
+  "/member": ["Member"],
+};
+
+type JwtPayload = {
+  exp?: number;
+  roles: string[];
+}
+
 const PUBLIC_ROUTES = ["/"];
 const AUTH_ROUTES = ["/api/account/login", "/api/account/register", "/api/account/refresh"];
 
-function decodeJWT(token: string): { exp?: number } | null {
+const ROLE_CLAIM = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
+
+function decodeJWT(token: string): JwtPayload | null {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
@@ -15,7 +27,12 @@ function decodeJWT(token: string): { exp?: number } | null {
       Buffer.from(payload, "base64url").toString("utf-8")
     );
 
-    return decoded;
+    const rawRole = decoded[ROLE_CLAIM] ?? decoded.role;
+    const roles: string[] = rawRole
+      ? Array.isArray(rawRole) ? rawRole : [rawRole]
+      : [];
+
+    return { exp: decoded.exp, roles };
   } catch {
     return null;
   }
@@ -99,6 +116,17 @@ export async function middleware(req: NextRequest) {
     const refreshSuccess = await refreshTokens(req, res);
     return refreshSuccess ? res : redirectToLandingPage(req.url);
   }
+
+  for (const [prefix, allowedRoles] of Object.entries(ROLE_ROUTES)) {
+  if (pathname.startsWith(prefix)) {
+    const userRoles = decoded?.roles ?? [];
+    const hasRole = userRoles.some((r) => allowedRoles.includes(r));
+    if (!hasRole) {
+      return redirectToLandingPage(req.url);
+    }
+    break;
+  }
+}
 
   return NextResponse.next();
 }

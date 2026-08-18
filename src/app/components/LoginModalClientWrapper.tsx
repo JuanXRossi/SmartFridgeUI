@@ -17,11 +17,16 @@ export default function LoginModalClientWrapper({ children }: { children: ReactN
   function onOpen() { setOpen(true); }
   function onClose() { setOpen(false); }
 
-  function onSuccess() {
+  function onSuccess(user: { username: string, email: string, roles: string }) {
     setShowVerification(true);
 
+    
     setTimeout(() => {
-      router.replace("/inicio");
+      if(user.roles === "Admin") {
+        router.replace("/administrador/inicio");
+      } else {
+        router.replace("/member/inicio");
+      }
     }, 1500);
   }
 

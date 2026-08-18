@@ -14,6 +14,7 @@ export interface LoginRequest {
 export interface UserResponse {
   userName: string;
   email: string;
+  roles: string;
   token: string;
   refreshToken: string;
 }

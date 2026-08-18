@@ -7,7 +7,7 @@ import loginSchema from "./schemas/loginSchema";
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (user: { username: string, email: string, roles: string }) => void;
 }
 
 const styles ={
@@ -48,7 +48,7 @@ export default function LoginModal({open, onClose, onSuccess} : Props) {
           }
           resetForm();
           onClose();
-          onSuccess();
+          onSuccess(data.user);
         } catch (err) {
           setFieldError("username", "Error de red. Por favor, inténtalo más tarde");
         } finally {

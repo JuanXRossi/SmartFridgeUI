@@ -36,9 +36,9 @@ export async function POST(req: Request) {
         password: body.password,
     });
 
-    const { userName, email, token, refreshToken } = resp.data;
+    const { userName, email, roles, token, refreshToken } = resp.data;
 
-    const response = NextResponse.json({ success: true, user: { userName, email } }, { status: 200 });
+    const response = NextResponse.json({ success: true, user: { userName, email, roles: roles[0] } }, { status: 200 });
 
     response.cookies.set("auth_token", token, {
       ...COOKIE_OPTS,
