@@ -63,7 +63,7 @@ interface NavItem {
 const mainNav: NavItem[] = [
   {
     label: "Inicio",
-    href: "/inicio",
+    href: "/administrador/inicio",
     icon: <LayoutDashboard size={16} />,
   },
   {

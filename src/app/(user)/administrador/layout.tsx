@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 import { AuthState, AuthUser } from "@/app/types/api/auth";
 import { getInternalApiUrl } from "@/api/internalClient";
 import LayoutClient from "./layoutClient";
+import { redirect } from "next/navigation";
+//import { getSessionUser } from "@/app/utils/account";
 
 function getInitials(name: string): string {
   return name
@@ -60,6 +62,11 @@ async function getSessionUser(): Promise<AuthUser | null> {
 
 export default async function HomeLayout({ children }: { children: React.ReactNode }) {
   const user = await getSessionUser();
+
+  if(!user) {
+    redirect("/");
+  }
+  
   const initialState: AuthState = { session: !!user, user };
 
   return (

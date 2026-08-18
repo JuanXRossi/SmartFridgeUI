@@ -1,7 +1,7 @@
 "use client"
 
 import { Package, AlertTriangle, ShoppingCart, Users } from "lucide-react";
-import DashboardCard from "./components/DashboardCard";
+import DashboardCard from "../components/DashboardCard";
 import { useContext } from "react";
 import { AuthContext } from "@/app/context/AuthContext";
 
