@@ -1,7 +1,7 @@
 "use client"
 
 import { Package, AlertTriangle, ShoppingCart, Users } from "lucide-react";
-import DashboardCard from "../components/DashboardCard";
+import DashboardCard from "../components/inicio/DashboardCard";
 import { useContext } from "react";
 import { AuthContext } from "@/app/context/AuthContext";
 
@@ -75,7 +75,7 @@ export default function AdminHomePage() {
       <p className={styles.sectionTitle}>Acceso rápido</p>
       <div className={styles.cardsGrid}>
         <DashboardCard
-          href="/inicio/productos"
+          href="/administrador/productos"
           variant="sky"
           icon={<Package size={26} />}
           badge="Inventario"
@@ -85,7 +85,7 @@ export default function AdminHomePage() {
           statLabel="productos registrados"
         />
         <DashboardCard
-          href="/inicio/urgencias"
+          href="/administrador/urgencias"
           variant="lime"
           icon={<AlertTriangle size={26} />}
           badge="Reposición"

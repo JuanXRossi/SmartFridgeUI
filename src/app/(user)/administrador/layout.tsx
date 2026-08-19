@@ -4,7 +4,6 @@ import { AuthState, AuthUser } from "@/app/types/api/auth";
 import { getInternalApiUrl } from "@/api/internalClient";
 import LayoutClient from "./layoutClient";
 import { redirect } from "next/navigation";
-//import { getSessionUser } from "@/app/utils/account";
 
 function getInitials(name: string): string {
   return name

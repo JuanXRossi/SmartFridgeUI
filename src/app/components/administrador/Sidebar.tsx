@@ -68,7 +68,7 @@ const mainNav: NavItem[] = [
   },
   {
     label: "Productos",
-    href: "/productos",
+    href: "/administrador/productos",
     icon: <Package size={16} />,
   },
   {
