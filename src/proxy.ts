@@ -93,7 +93,7 @@ function redirectToLandingPage(url: string): NextResponse {
   return redirect;
 }
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (PUBLIC_ROUTES.includes(pathname) || AUTH_ROUTES.some((r) => pathname.startsWith(r))) {
