@@ -1,12 +1,10 @@
-export type UrgencyLevel = "Alta" | "Mid" | "Baja";
-
 export interface Product {
   id: number;
   name: string;
-  urgencyName: UrgencyLevel;
+  urgencyName: string;
 }
 
 export interface ProductFormData {
   name: string;
-  urgencyName: UrgencyLevel;
+  urgencyId: number;
 }

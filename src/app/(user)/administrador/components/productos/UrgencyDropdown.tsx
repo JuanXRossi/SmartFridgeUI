@@ -1,15 +1,10 @@
 "use client";
+
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { UrgencyLevel } from "@/app/(user)/administrador/productos/types";
+import { UrgencyResponse } from "@/app/types/urgencies/object";
 
 const DROPDOWN_ANIMATION_MS = 180;
-
-const URGENCY_STYLES: Record<UrgencyLevel, string> = {
-  Alta: "bg-rose-50 text-rose-700",
-  Mid: "bg-amber-50 text-amber-700",
-  Baja: "bg-emerald-50 text-emerald-700",
-};
 
 const styles = {
   wrapper: "relative",
@@ -45,16 +40,15 @@ const styles = {
   ].join(" "),
 
   optionActive: "bg-[#EAF4FB]",
-
-  dot: "w-2 h-2 rounded-full",
+  dot: "w-2 h-2 rounded-full bg-[#8AABB8]",
 };
 
 interface UrgencyDropdownProps {
   id?: string;
   name: string;
-  value: UrgencyLevel;
-  options: UrgencyLevel[];
-  onChange: (value: UrgencyLevel) => void;
+  value: number;
+  options: UrgencyResponse[];
+  onChange: (value: number) => void;
   onBlur?: () => void;
   hasError?: boolean;
 }
@@ -72,7 +66,8 @@ export default function UrgencyDropdown({
   const [isVisible, setIsVisible] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
+  const selected = options.find((o) => o.id === value);  
+  
   const openMenu = () => {
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
     setIsVisible(true);
@@ -104,8 +99,8 @@ export default function UrgencyDropdown({
     return () => document.removeEventListener("mousedown", handleMouseDown);
   }, [isVisible]);
 
-  const handleSelect = (option: UrgencyLevel) => {
-    onChange(option);
+  const handleSelect = (option: UrgencyResponse) => {
+    onChange(option.id);
     closeMenu();
   };
 
@@ -121,8 +116,8 @@ export default function UrgencyDropdown({
         aria-expanded={menuOpen}
       >
         <span className="flex items-center gap-2">
-          <span className={`${styles.dot} ${URGENCY_STYLES[value].split(" ")[0]}`} />
-          {value}
+          <span className={styles.dot} />
+          {selected?.name ?? "Seleccionar urgencia"}
         </span>
         <ChevronDown size={14} className={`${styles.chevron} ${menuOpen ? styles.chevronOpen : ""}`} />
       </button>
@@ -137,14 +132,14 @@ export default function UrgencyDropdown({
             {options.map((option) => (
               <button
                 type="button"
-                key={option}
+                key={option.id}
                 role="option"
-                aria-selected={option === value}
-                className={`${styles.option} ${option === value ? styles.optionActive : ""}`}
+                aria-selected={option.id === value}
+                className={`${styles.option} ${option.id === value ? styles.optionActive : ""}`}
                 onClick={() => handleSelect(option)}
               >
-                <span className={`${styles.dot} ${URGENCY_STYLES[option].split(" ")[0]}`} />
-                {option}
+                <span className={styles.dot} />
+                {option.name}
               </button>
             ))}
           </div>

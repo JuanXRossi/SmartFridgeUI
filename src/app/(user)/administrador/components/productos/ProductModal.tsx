@@ -1,9 +1,11 @@
 "use client";
-import { useCallback } from "react";
+
+import { useCallback, useEffect, useState } from "react";
 import { useFormik } from "formik";
 import Modal from "./ui/Modal";
-import productSchema, { URGENCY_OPTIONS } from "../../schemas/productSchema";
+import productSchema from "../../schemas/productSchema";
 import { Product, ProductFormData } from "@/app/(user)/administrador/productos/types";
+import { UrgencyResponse } from "@/app/types/urgencies/object";
 import UrgencyDropdown from "./UrgencyDropdown";
 
 interface Props {
@@ -28,11 +30,44 @@ const styles = {
 
 export default function ProductModal({ open, product, onClose, onSubmit }: Props) {
   const isEdit = !!product;
+  const [urgencies, setUrgencies] = useState<UrgencyResponse[]>([]);
+  const [urgenciesError, setUrgenciesError] = useState(false);
+  
+  useEffect(() => {
+    if (!open) return;
 
+    const controller = new AbortController();
+
+    async function fetchUrgencies() {
+      try {
+        const resp = await fetch("/api/urgency", {
+          signal: controller.signal,
+        });
+        if (!resp.ok) {
+          setUrgenciesError(true);
+          return;
+        }
+        const json = await resp.json();
+        if (json.success && Array.isArray(json.data)) {
+          setUrgencies(json.data);
+        } else {
+          setUrgenciesError(true);
+        }
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") {
+          setUrgenciesError(true);
+        }
+      }
+    }
+
+    fetchUrgencies();
+    return () => controller.abort();
+  }, [open]);
+  
   const formik = useFormik<ProductFormData>({
     initialValues: product
-      ? { name: product.name, urgencyName: product.urgencyName }
-      : { name: "", urgencyName: "Mid" },
+      ? { name: product.name, urgencyId: 0 }
+      : { name: "", urgencyId: 0 },
     enableReinitialize: true,
     validationSchema: productSchema,
     onSubmit: async (values, { setSubmitting, resetForm }) => {
@@ -57,6 +92,18 @@ export default function ProductModal({ open, product, onClose, onSubmit }: Props
       title={isEdit ? "Editar producto" : "Nuevo producto"}
       id="product-modal"
     >
+      {urgenciesError && (
+        <div className="mb-3 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <span>No se pudieron cargar las urgencias.</span>
+          <button
+            type="button"
+            onClick={() => setUrgenciesError(false)}
+            className="ml-3 font-semibold underline hover:text-amber-600"
+          >
+            Cerrar
+          </button>
+        </div>
+      )}
       <form onSubmit={formik.handleSubmit} className={styles.form}>
         <div>
           <label className={styles.label}>Nombre</label>
@@ -81,15 +128,15 @@ export default function ProductModal({ open, product, onClose, onSubmit }: Props
           <label className={styles.label}>Urgencia</label>
           <UrgencyDropdown
             id="product-urgency"
-            name="urgencyName"
-            value={formik.values.urgencyName}
-            options={URGENCY_OPTIONS}
-            onChange={(val) => formik.setFieldValue("urgencyName", val)}
-            onBlur={() => formik.setFieldTouched("urgencyName", true)}
-            hasError={!!(formik.touched.urgencyName && formik.errors.urgencyName)}
+            name="urgencyId"
+            value={formik.values.urgencyId}
+            options={urgencies}
+            onChange={(val) => formik.setFieldValue("urgencyId", val)}
+            onBlur={() => formik.setFieldTouched("urgencyId", true)}
+            hasError={!!(formik.touched.urgencyId && formik.errors.urgencyId)}
           />
-          {formik.touched.urgencyName && formik.errors.urgencyName && (
-            <p className={styles.errorText} role="alert">{formik.errors.urgencyName}</p>
+          {formik.touched.urgencyId && formik.errors.urgencyId && (
+            <p className={styles.errorText} role="alert">{formik.errors.urgencyId}</p>
           )}
         </div>
 

@@ -7,6 +7,7 @@ import ProductsMobileCard from "../components/productos/ProductsMobileCard";
 import ProductModal from "../components/productos/ProductModal";
 import DeleteConfirmModal from "../components/productos/DeleteConfirmModal";
 import { Product, ProductFormData } from "./types";
+import { UrgencyResponse } from "@/app/types/urgencies/object";
 
 const styles = {
   page: "py-12",
@@ -52,25 +53,73 @@ const styles = {
 
 export default function ProductosPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [productsError, setProductsError] = useState(false);
   const [search, setSearch] = useState("");
   const [urgencyFilter, setUrgencyFilter] = useState<string>("all");
+  const [urgencies, setUrgencies] = useState<UrgencyResponse[]>([]);
+  const [urgenciesError, setUrgenciesError] = useState(false);
 
   const [createOpen, setCreateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Product | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
 
   useEffect(() => {
-    async function fetchProducts() {
-      const resp = await fetch("/api/product", {
-        method: "GET",
-        headers: {"Content-Type": "application/json"},
-      });
+    const controller = new AbortController();
 
-      const storedProducts = await resp.json();
-      setProducts(storedProducts.data);
+    async function fetchProducts() {
+      try {
+        const resp = await fetch("/api/product", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+        });
+        if (!resp.ok) {
+          setProductsError(true);
+          return;
+        }
+        const json = await resp.json();
+        if (json.success && Array.isArray(json.data)) {
+          setProducts(json.data);
+        } else {
+          setProductsError(true);
+        }
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") {
+          setProductsError(true);
+        }
+      }
+    }
+
+    async function fetchUrgencies() {
+      try {
+        const resp = await fetch("/api/urgency", {
+          method: "GET",
+          signal: controller.signal,
+        });
+
+        if (!resp.ok) {
+          setUrgenciesError(true);
+          return;
+        }
+
+        const json = await resp.json();
+        
+        if (json.success && Array.isArray(json.data)) {
+          setUrgencies(json.data);
+        } else {
+          setUrgenciesError(true);
+        }
+      } catch(err) {
+        if ((err as Error).name !== "AbortError") {
+          setUrgenciesError(true);
+        }
+      }
     }
 
     fetchProducts();
+    fetchUrgencies();
+
+    return () => controller.abort();
   }, []);
 
   const filtered = products.filter((p) => {
@@ -83,10 +132,11 @@ export default function ProductosPage() {
   });
 
   const handleCreate = (data: ProductFormData) => {
+    const urgency = urgencies.find((u) => u.id === data.urgencyId);
     const next: Product = {
       id: Date.now(),
       name: data.name.trim(),
-      urgencyName: data.urgencyName,
+      urgencyName: urgency?.name ?? "",
     };
     setProducts((prev) => [...prev, next]);
     setCreateOpen(false);
@@ -94,10 +144,11 @@ export default function ProductosPage() {
 
   const handleEdit = (data: ProductFormData) => {
     if (!editTarget) return;
+    const urgency = urgencies.find((u) => u.id === data.urgencyId);
     setProducts((prev) =>
       prev.map((p) =>
         p.id === editTarget.id
-          ? { ...p, name: data.name.trim(), urgencyName: data.urgencyName }
+          ? { ...p, name: data.name.trim(), urgencyName: urgency?.name ?? p.urgencyName }
           : p
       )
     );
@@ -121,6 +172,31 @@ export default function ProductosPage() {
           count={total}
           onCreate={() => setCreateOpen(true)}
         />
+
+        {productsError && (
+          <div className="mb-4 flex items-center justify-between rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+            <span>No se pudieron cargar los productos. Por favor, recargá la página.</span>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="ml-3 font-semibold underline hover:text-red-600"
+            >
+              Recargar
+            </button>
+          </div>
+        )}
+        {urgenciesError && (
+          <div className="mb-4 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <span>No se pudieron cargar las urgencias. Los filtros pueden no estar completos.</span>
+            <button
+              type="button"
+              onClick={() => setUrgenciesError(false)}
+              className="ml-3 font-semibold underline hover:text-amber-600"
+            >
+              Cerrar
+            </button>
+          </div>
+        )}
 
         <div className={styles.statsStrip}>
           <div className={styles.statCard}>
@@ -170,9 +246,11 @@ export default function ProductosPage() {
             aria-label="Filtrar por urgencia"
           >
             <option value="all">Todas las urgencias</option>
-            <option value="Alta">Alta</option>
-            <option value="Mid">Mid</option>
-            <option value="Baja">Baja</option>
+            {urgencies.map((u) => (
+              <option key={u.id} value={u.name}>
+                {u.name}
+              </option>
+            ))}
           </select>
         </div>
 

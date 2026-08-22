@@ -47,13 +47,13 @@ const styles = {
       "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold",
       "bg-[#EDFAE6] text-[#2E7D32] border border-[#B5E0A8]",
     ].join(" "),
-  },
+  } as Record<string, string>,
 
   badgeDot: {
     Alta: "w-1.5 h-1.5 rounded-full bg-[#C0392B]",
     Mid: "w-1.5 h-1.5 rounded-full bg-[#B07D00]",
     Baja: "w-1.5 h-1.5 rounded-full bg-[#2E7D32]",
-  },
+  } as Record<string, string>,
 
   actionsGroup: "flex items-center justify-center gap-2",
 
