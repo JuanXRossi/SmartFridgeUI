@@ -1,5 +1,10 @@
 export interface ProductResponse {
-    id: string;
-    name: string;
-    urgencyName: string;
+  id: number;
+  name: string;
+  urgencyName: string;
+}
+
+export interface ProductRequest {
+  name: string;
+  urgencyId: number;
 }

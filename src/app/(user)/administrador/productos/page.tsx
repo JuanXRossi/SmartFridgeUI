@@ -131,34 +131,57 @@ export default function ProductosPage() {
     return matchesSearch && matchesUrgency;
   });
 
-  const handleCreate = (data: ProductFormData) => {
-    const urgency = urgencies.find((u) => u.id === data.urgencyId);
-    const next: Product = {
-      id: Date.now(),
-      name: data.name.trim(),
-      urgencyName: urgency?.name ?? "",
-    };
-    setProducts((prev) => [...prev, next]);
-    setCreateOpen(false);
+  const handleCreate = async (data: ProductFormData) => {
+    try {
+      const resp = await fetch("/api/product", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: data.name, urgencyId: data.urgencyId }),
+      });
+      const json = await resp.json();
+      if (!resp.ok || !json.success) {
+        return;
+      }
+      setProducts((prev) => [...prev, json.data]);
+      setCreateOpen(false);
+    } catch {
+    }
   };
 
-  const handleEdit = (data: ProductFormData) => {
+  const handleEdit = async (data: ProductFormData) => {
     if (!editTarget) return;
-    const urgency = urgencies.find((u) => u.id === data.urgencyId);
-    setProducts((prev) =>
-      prev.map((p) =>
-        p.id === editTarget.id
-          ? { ...p, name: data.name.trim(), urgencyName: urgency?.name ?? p.urgencyName }
-          : p
-      )
-    );
-    setEditTarget(null);
+    try {
+      const resp = await fetch(`/api/product/${editTarget.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: data.name, urgencyId: data.urgencyId }),
+      });
+      const json = await resp.json();
+      if (!resp.ok || !json.success) {
+        return;
+      }
+      setProducts((prev) =>
+        prev.map((p) => (p.id === editTarget.id ? json.data : p))
+      );
+      setEditTarget(null);
+    } catch {
+    }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!deleteTarget) return;
-    setProducts((prev) => prev.filter((p) => p.id !== deleteTarget.id));
-    setDeleteTarget(null);
+    try {
+      const resp = await fetch(`/api/product/${deleteTarget.id}`, {
+        method: "DELETE",
+      });
+      const json = await resp.json();
+      if (!resp.ok || !json.success) {
+        return;
+      }
+      setProducts((prev) => prev.filter((p) => p.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } catch {
+    }
   };
 
   const total = products.length;
