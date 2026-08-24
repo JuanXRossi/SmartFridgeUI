@@ -7,7 +7,6 @@ export async function POST(req: Request) {
   try {
     const body = (await req.json()) as RegisterRequest;
 
-    // Basic server-side validation
     const missing = ["username", "email", "password", "name", "termsAccepted"].filter(
       (k) => !(body as any)[k]
     );

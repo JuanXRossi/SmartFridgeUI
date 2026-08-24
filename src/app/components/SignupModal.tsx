@@ -7,7 +7,7 @@ import signupSchema from "./schemas/signupSchema";
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSuccess: () => void; // used to show verification banner
+  onSuccess: () => void;
 }
 
 const styles = {
