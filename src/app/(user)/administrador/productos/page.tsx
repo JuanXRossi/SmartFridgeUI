@@ -8,6 +8,7 @@ import ProductModal from "../components/productos/ProductModal";
 import DeleteConfirmModal from "../components/productos/DeleteConfirmModal";
 import { Product, ProductFormData } from "./types";
 import { UrgencyResponse } from "@/app/types/urgencies/object";
+import useVisualNotifications from "@/app/hooks/useVisualNotifications";
 
 const styles = {
   page: "py-12",
@@ -53,11 +54,10 @@ const styles = {
 
 export default function ProductosPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [productsError, setProductsError] = useState(false);
   const [search, setSearch] = useState("");
   const [urgencyFilter, setUrgencyFilter] = useState<string>("all");
   const [urgencies, setUrgencies] = useState<UrgencyResponse[]>([]);
-  const [urgenciesError, setUrgenciesError] = useState(false);
+  const { actions: { openToast } } = useVisualNotifications();
 
   const [createOpen, setCreateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Product | null>(null);
@@ -74,18 +74,18 @@ export default function ProductosPage() {
           signal: controller.signal,
         });
         if (!resp.ok) {
-          setProductsError(true);
+          openToast({ severity: 'error', message: 'No se pudieron cargar los productos. Por favor, recargá la página.' });
           return;
         }
         const json = await resp.json();
         if (json.success && Array.isArray(json.data)) {
           setProducts(json.data);
         } else {
-          setProductsError(true);
+          openToast({ severity: 'error', message: 'No se pudieron cargar los productos. Por favor, recargá la página.' });
         }
       } catch (err) {
         if ((err as Error).name !== "AbortError") {
-          setProductsError(true);
+          openToast({ severity: 'error', message: 'No se pudieron cargar los productos. Por favor, recargá la página.' });
         }
       }
     }
@@ -98,7 +98,7 @@ export default function ProductosPage() {
         });
 
         if (!resp.ok) {
-          setUrgenciesError(true);
+          openToast({ severity: 'error', message: 'No se pudieron cargar las urgencias. Los filtros pueden no estar completos.' });
           return;
         }
 
@@ -107,11 +107,11 @@ export default function ProductosPage() {
         if (json.success && Array.isArray(json.data)) {
           setUrgencies(json.data);
         } else {
-          setUrgenciesError(true);
+          openToast({ severity: 'error', message: 'No se pudieron cargar las urgencias. Los filtros pueden no estar completos.' });
         }
       } catch(err) {
         if ((err as Error).name !== "AbortError") {
-          setUrgenciesError(true);
+          openToast({ severity: 'error', message: 'No se pudieron cargar las urgencias. Los filtros pueden no estar completos.' });
         }
       }
     }
@@ -140,11 +140,14 @@ export default function ProductosPage() {
       });
       const json = await resp.json();
       if (!resp.ok || !json.success) {
+        openToast({ severity: 'error', message: 'No se pudo crear el producto' });
         return;
       }
       setProducts((prev) => [...prev, json.data]);
       setCreateOpen(false);
+      openToast({ severity: 'success', message: 'Producto creado correctamente' });
     } catch {
+      openToast({ severity: 'error', message: 'No se pudo crear el producto' });
     }
   };
 
@@ -158,13 +161,16 @@ export default function ProductosPage() {
       });
       const json = await resp.json();
       if (!resp.ok || !json.success) {
+        openToast({ severity: 'error', message: 'No se pudo editar el producto' });
         return;
       }
       setProducts((prev) =>
         prev.map((p) => (p.id === editTarget.id ? json.data : p))
       );
       setEditTarget(null);
+      openToast({ severity: 'success', message: 'Producto editado correctamente' });
     } catch {
+      openToast({ severity: 'error', message: 'No se pudo editar el producto' });
     }
   };
 
@@ -176,11 +182,14 @@ export default function ProductosPage() {
       });
       const json = await resp.json();
       if (!resp.ok || !json.success) {
+        openToast({ severity: 'error', message: 'No se pudo eliminar el producto' });
         return;
       }
       setProducts((prev) => prev.filter((p) => p.id !== deleteTarget.id));
       setDeleteTarget(null);
+      openToast({ severity: 'success', message: 'Producto eliminado correctamente' });
     } catch {
+      openToast({ severity: 'error', message: 'No se pudo eliminar el producto' });
     }
   };
 
@@ -195,31 +204,6 @@ export default function ProductosPage() {
           count={total}
           onCreate={() => setCreateOpen(true)}
         />
-
-        {productsError && (
-          <div className="mb-4 flex items-center justify-between rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-            <span>No se pudieron cargar los productos. Por favor, recargá la página.</span>
-            <button
-              type="button"
-              onClick={() => window.location.reload()}
-              className="ml-3 font-semibold underline hover:text-red-600"
-            >
-              Recargar
-            </button>
-          </div>
-        )}
-        {urgenciesError && (
-          <div className="mb-4 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            <span>No se pudieron cargar las urgencias. Los filtros pueden no estar completos.</span>
-            <button
-              type="button"
-              onClick={() => setUrgenciesError(false)}
-              className="ml-3 font-semibold underline hover:text-amber-600"
-            >
-              Cerrar
-            </button>
-          </div>
-        )}
 
         <div className={styles.statsStrip}>
           <div className={styles.statCard}>

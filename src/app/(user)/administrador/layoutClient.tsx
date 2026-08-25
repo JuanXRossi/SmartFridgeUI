@@ -8,6 +8,7 @@ import Sidebar from "@/app/components/administrador/Sidebar";
 import { AuthProvider } from "@/app/context/AuthContext";
 import { AuthContext } from "@/app/context/AuthContext";
 import { AuthState } from "@/app/types/api/auth";
+import useVisualNotifications from "@/app/hooks/useVisualNotifications";
 
 const styles = {
   root: "min-h-screen bg-gradient-to-br from-[#EAF4FB] via-white to-[#EDFAE6]",
@@ -18,8 +19,6 @@ const styles = {
   content:
     "flex-1 min-w-0 md:ml-64 transition-all duration-300",
   inner: "w-full px-4 md:px-8 py-8",
-  logoutErrNotification: "fixed top-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-rose-50 border border-rose-100 text-rose-800 px-4 py-2 rounded-md shadow",
-  logoutErrNotificationDismissBtn: "ml-3 text-slate-600",
 };
 
 interface LayoutClientProps {
@@ -31,21 +30,22 @@ function LayoutShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { state, actions } = useContext(AuthContext);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [logoutError, setLogoutError] = useState(false);
+  const { actions: { openToast } } = useVisualNotifications();
 
   async function handleLogout () {
     try {
       const resp = await fetch("/api/account/logout", { method: "POST" });
 
       if (!resp.ok) {
-        setLogoutError(true);
+        openToast({ severity: 'error', message: 'Error al cerrar sesión. Por favor, inténtalo de nuevo.' });
         return;
       }
 
       actions.logout();
+      openToast({ severity: 'success', message: 'Has cerrado sesión de manera exitosa' });
       router.replace("/");
     } catch {
-      setLogoutError(true);
+      openToast({ severity: 'error', message: 'Error al cerrar sesión. Por favor, inténtalo de nuevo.' });
     }
   }
 
@@ -62,19 +62,6 @@ function LayoutShell({ children }: { children: React.ReactNode }) {
   return (
     <div className={styles.root}>
       <Headbar user={user} onSignOut={() => handleLogout()} />
-
-      {logoutError && (
-        <div className={styles.logoutErrNotification}>
-          <span>Error al cerrar sesión. Por favor, inténtalo de nuevo.</span>
-          <button
-            className={styles.logoutErrNotificationDismissBtn}
-            aria-label="Descartar"
-            onClick={() => setLogoutError(false)}
-          >
-            ✕
-          </button>
-        </div>
-      )}
 
       <button
         className={styles.menuBtn}
