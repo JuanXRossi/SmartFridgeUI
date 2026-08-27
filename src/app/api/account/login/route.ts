@@ -53,6 +53,13 @@ export async function POST(req: Request) {
   } catch (err: unknown) {
     const error = err as any;
 
+    if (error?.response?.status === 403 && error.response.data?.code === "EMAIL_NOT_CONFIRMED") {
+      return NextResponse.json(
+        { success: false, message: error.response.data.message, code: "EMAIL_NOT_CONFIRMED" },
+        { status: 403 }
+      );
+    }
+    
     if (error?.response?.data) {
         const data = error.response.data;
         const fieldErrors = data?.fieldErrors ?? data?.errors ?? undefined;

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import client from "@/api/client";
-import type { RegisterRequest, UserResponse } from "@/app/types/api/auth";
+import type { RegisterRequest, RegisterResponse } from "@/app/types/api/auth";
 
 export async function POST(req: Request) {
   try {
@@ -25,14 +25,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: "Debes aceptar los Términos y la Política de Privacidad" }, { status: 400 });
     }
 
-    const resp = await client.post<UserResponse>("/account/register", {
+    const resp = await client.post<RegisterResponse>("/account/register", {
       username: body.username,
       email: body.email,
       password: body.password,
       name: body.name,
     });
 
-    return NextResponse.json({ success: true, data: resp.data }, { status: 201 });
+    return NextResponse.json({ success: true, message: resp.data.message ?? "Cuenta creada correctamente" }, { status: 200 });
   } catch (err: unknown) {
     const error = err as any;
     if (error?.response?.data) {

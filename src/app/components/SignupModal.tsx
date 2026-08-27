@@ -3,11 +3,12 @@ import { useCallback } from "react";
 import { useFormik } from "formik";
 import Modal from "./ui/Modal";
 import signupSchema from "./schemas/signupSchema";
+import useVisualNotifications from "@/app/hooks/useVisualNotifications";
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (email: string) => void;
 }
 
 const styles = {
@@ -28,10 +29,12 @@ const styles = {
 };
 
 export default function SignupModal({ open, onClose, onSuccess }: Props) {
+  const { actions: { openToast } } = useVisualNotifications();
+
   const formik = useFormik({
     initialValues: { username: "", email: "", password: "", name: "", terms: false },
     validationSchema: signupSchema,
-    onSubmit: async (values, { setSubmitting, setErrors, resetForm, setFieldError }) => {
+    onSubmit: async (values, { setSubmitting, resetForm }) => {
       try {
         const resp = await fetch("/api/account/register", {
           method: "POST",
@@ -47,17 +50,17 @@ export default function SignupModal({ open, onClose, onSuccess }: Props) {
         const data = await resp.json();
         if (!resp.ok) {
           if (data?.fieldErrors) {
-            setErrors(data.fieldErrors);
+            openToast({ severity: "error", message: data.fieldErrors.Name.length == 1 ? data.fieldErrors.Name[0] : "El inicio de sesión falló" });
           } else {
-            setFieldError("username", data?.message ?? "El registro falló");
+            openToast({ severity: "error", message: data?.message ?? "El inicio de sesión falló" });
           }
           return;
         }
         resetForm();
         onClose();
-        onSuccess();
+        onSuccess(values.email);
       } catch (err) {
-        setFieldError("username", "Error de red. Por favor, inténtalo más tarde.");
+        openToast({ severity: "error", message: "Error de red. Por favor, inténtalo más tarde" });
       } finally {
         setSubmitting(false);
       }

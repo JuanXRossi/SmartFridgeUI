@@ -1,47 +1,76 @@
 "use client";
 import { ReactNode, useState } from "react";
 import SignupModal from "./SignupModal";
+import Modal from "./ui/Modal";
 
 const styles = {
-    wrapperClickArea: "",
-    bannerContainer: "fixed top-20 left-1/2 transform -translate-x-1/2 z-50",
-    bannerBox: "flex items-center gap-3 bg-emerald-50 border border-emerald-100 text-emerald-800 px-4 py-2 rounded-md shadow",
-    closeButton: "ml-3 text-slate-600",
-  };
+  wrapperClickArea: "",
+  successContent: "text-center space-y-4",
+  successIcon: "mx-auto h-12 w-12 text-emerald-500",
+  successTitle: "text-lg font-semibold text-slate-900",
+  successMessage: "text-sm text-slate-600",
+  successEmail: "font-medium text-sky-700",
+  closeButton:
+    "w-full bg-sky-600 hover:bg-sky-700 text-white rounded-md py-2 font-medium mt-4",
+};
 
-export default function SignupModalClientWrapper({ children }: { children: ReactNode }) {
+export default function SignupModalClientWrapper({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const [open, setOpen] = useState(false);
-  const [showVerification, setShowVerification] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
 
   function onOpen() { setOpen(true); }
   function onClose() { setOpen(false); }
 
-  function onSuccess() {
-    setShowVerification(true);
+  function onSuccess(email: string) {
+    setRegisteredEmail(email);
+    setShowConfirmationModal(true);
   }
 
   return (
     <>
-      <div onClick={(e) => {
-        const target = e.target as HTMLElement;
-        if (target?.id === "heroSignup" || target.closest?.("#heroSignup")) {
-          e.preventDefault();
-          onOpen();
-        }
-      }}>
+      <div
+        onClick={(e) => {
+          const target = e.target as HTMLElement;
+          if (
+            target?.id === "heroSignup" ||
+            target.closest?.("#heroSignup")
+          ) {
+            e.preventDefault();
+            onOpen();
+          }
+        }}
+      >
         {children}
       </div>
 
       <SignupModal open={open} onClose={onClose} onSuccess={onSuccess} />
 
-      {showVerification && (
-        <div className={styles.bannerContainer}>
-          <div className={styles.bannerBox}>
-            <span>Gracias — revisa tu correo para verificar tu cuenta</span>
-            <button className={styles.closeButton} aria-label="Descartar" onClick={() => setShowVerification(false)}>✕</button>
-          </div>
+      <Modal
+        open={showConfirmationModal}
+        onClose={() => setShowConfirmationModal(false)}
+        title="Confirma tu correo"
+        id="email-confirmation-info"
+      >
+        <div className={styles.successContent}>
+          <p className={styles.successMessage}>
+            Te enviamos un correo de confirmación a{" "}
+            <span className={styles.successEmail}>{registeredEmail}</span>.
+            Revisá tu bandeja de entrada y haz clic en el enlace para activar tu
+            cuenta.
+          </p>
+          <button
+            className={styles.closeButton}
+            onClick={() => setShowConfirmationModal(false)}
+          >
+            Entendido
+          </button>
         </div>
-      )}
+      </Modal>
     </>
   );
 }

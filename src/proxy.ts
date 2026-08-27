@@ -12,8 +12,15 @@ type JwtPayload = {
   roles: string[];
 }
 
-const PUBLIC_ROUTES = ["/"];
-const AUTH_ROUTES = ["/api/account/login", "/api/account/register", "/api/account/refresh"];
+const PUBLIC_ROUTES = ["/", "/confirm-email", "/reset-password"];
+const AUTH_ROUTES = [
+  "/api/account/login",
+  "/api/account/register",
+  "/api/account/refresh",
+  "/api/account/forgot-password",
+  "/api/account/confirm-email",
+  "/api/account/resend-confirmation",
+];
 
 const ROLE_CLAIM = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
 

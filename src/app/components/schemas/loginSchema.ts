@@ -1,7 +1,9 @@
 import * as Yup from "yup";
 
 const loginSchema = Yup.object().shape({
-    username: Yup.string().required("El nombre de usuario es requerido"),
+    username: Yup.string()
+        .required("El nombre de usuario es requerido")
+        .min(4, "Al menos 4 caracteres"),
     password: Yup.string()
         .min(8, "Al menos 8 caracteres")
         .matches(/[a-zA-Z]/, "Debe contener letras")
