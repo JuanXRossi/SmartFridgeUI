@@ -1,10 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 
-interface WithAuthResult<T> {
-  data?: T;
-  error?: NextResponse;
+interface WithAuthSuccess<T> {
+  data: T;
+  error?: never;
 }
+
+interface WithAuthError {
+  data?: never;
+  error: NextResponse;
+}
+
+type WithAuthResult<T> =
+  | WithAuthSuccess<T>
+  | WithAuthError;
 
 export async function withAuth<T>(
   req: NextRequest,

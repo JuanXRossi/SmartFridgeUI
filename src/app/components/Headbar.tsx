@@ -1,8 +1,10 @@
 "use client";
 
-import { Bell, LogOut, ChevronDown } from "lucide-react";
+import { Bell, LogOut, ChevronDown, Settings } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import ProfileConfigModal from "./ProfileConfigModal";
+import { cn } from "@/lib/utils";
 
 const DROPDOWN_ANIMATION_MS = 180;
 
@@ -34,7 +36,8 @@ const styles = {
   dropdownEmail: "text-slate-400 text-xs mt-0.5",
   dropdownItem:
     "flex items-center gap-3 px-4 py-3 text-sm text-slate-600 hover:bg-[#EDFAE6] transition-colors cursor-pointer w-full",
-  dropdownItemIcon: "text-rose-400",
+  dropdownItemIcon: "text-sky-500",
+  dropdownItemIconLogout: "text-rose-400",
 };
 
 interface HeadbarProps {
@@ -51,6 +54,7 @@ interface HeadbarProps {
 export default function Headbar({ user, onSignOut }: HeadbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -62,12 +66,19 @@ export default function Headbar({ user, onSignOut }: HeadbarProps) {
 
   const closeMenu = () => {
     setMenuOpen(false);
-    closeTimerRef.current = setTimeout(() => setIsVisible(false), DROPDOWN_ANIMATION_MS);
+    closeTimerRef.current = setTimeout(
+      () => setIsVisible(false),
+      DROPDOWN_ANIMATION_MS
+    );
   };
 
   const toggleMenu = () => (isVisible ? closeMenu() : openMenu());
 
-  useEffect(() => () => { if (closeTimerRef.current) clearTimeout(closeTimerRef.current); }, []);
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (!isVisible) return;
@@ -125,7 +136,9 @@ export default function Headbar({ user, onSignOut }: HeadbarProps) {
               </div>
               <ChevronDown
                 size={14}
-                className={`${styles.chevron} ${menuOpen ? styles.chevronOpen : ""}`}
+                className={cn(styles.chevron, {
+                  [styles.chevronOpen]: menuOpen,
+                })}
               />
             </button>
 
@@ -145,6 +158,22 @@ export default function Headbar({ user, onSignOut }: HeadbarProps) {
                     <p className={styles.dropdownName}>{user.name}</p>
                     <p className={styles.dropdownEmail}>{user.email}</p>
                   </div>
+
+                  <button
+                    className={styles.dropdownItem}
+                    role="menuitem"
+                    onClick={() => {
+                      closeMenu();
+                      setProfileModalOpen(true);
+                    }}
+                  >
+                    <Settings
+                      size={15}
+                      className={styles.dropdownItemIcon}
+                    />
+                    Configuración
+                  </button>
+
                   <button
                     className={styles.dropdownItem}
                     role="menuitem"
@@ -153,7 +182,7 @@ export default function Headbar({ user, onSignOut }: HeadbarProps) {
                       onSignOut?.();
                     }}
                   >
-                    <LogOut size={15} className={styles.dropdownItemIcon} />
+                    <LogOut size={15} className={styles.dropdownItemIconLogout} />
                     Cerrar sesión
                   </button>
                 </div>
@@ -162,6 +191,14 @@ export default function Headbar({ user, onSignOut }: HeadbarProps) {
           </div>
         )}
       </div>
+
+      {user && (
+        <ProfileConfigModal
+          open={profileModalOpen}
+          onClose={() => setProfileModalOpen(false)}
+          user={user}
+        />
+      )}
     </header>
   );
 }

@@ -6,6 +6,14 @@ export interface RegisterRequest {
   termsAccepted: boolean;
 }
 
+export interface UpdateAccountRequest {
+  username: string;
+  email: string;
+  name: string;
+  password?: string;
+}
+
+
 export interface LoginRequest {
   username: string;
   password: string;
@@ -27,6 +35,12 @@ export interface ForgotPasswordRequest {
 export interface RegisterResponse {
   success: boolean;
   message: string
+}
+
+export interface UpdateAccountResponse {
+  success: boolean;
+  message?: string;
+  fieldErrors?: Record<string, string>;
 }
 
 export interface UserResponse {

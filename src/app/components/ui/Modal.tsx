@@ -1,5 +1,6 @@
 "use client";
 import { ReactNode, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
 interface ModalProps {
   open: boolean;
@@ -11,7 +12,7 @@ interface ModalProps {
 
 const styles = {
     overlay: "fixed inset-0 z-50 flex items-start justify-center overflow-auto bg-slate-900/60 p-4",
-    dialog: "mx-auto mt-16 max-w-md bg-white rounded-lg shadow-xl p-6",
+    dialog: "mx-auto mt-16 w-full max-w-md bg-white rounded-lg shadow-xl p-6",
     title: "text-lg font-semibold text-sky-900",
     content: "mt-4",
   };
@@ -39,12 +40,27 @@ export default function Modal({ open, onClose, title, children, id = "modal" }: 
 
   if (!open) return null;
 
-  return (
-    <div ref={overlayRef} className={styles.overlay} aria-hidden={!open}>
-      <div id={id} role="dialog" aria-modal="true" aria-labelledby={`${id}-title`} className={styles.dialog}>
-        {title && <h2 id={`${id}-title`} className={styles.title}>{title}</h2>}
+  return createPortal(
+    <div
+      ref={overlayRef}
+      className={styles.overlay}
+      aria-hidden={!open}
+    >
+      <div
+        id={id}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={`${id}-title`}
+        className={styles.dialog}
+      >
+        {title && (
+          <h2 id={`${id}-title`} className={styles.title}>
+            {title}
+          </h2>
+        )}
         <div className={styles.content}>{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

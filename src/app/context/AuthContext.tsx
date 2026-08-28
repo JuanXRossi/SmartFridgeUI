@@ -7,12 +7,12 @@ const initialState: AuthState = {
 };
 
 type Action =
-  | { type: "LOGIN";  payload: AuthUser }
+  | { type: "SET";  payload: AuthUser }
   | { type: "LOGOUT" };
 
 const reducer = (state: AuthState, action: Action): AuthState => {
   switch (action.type) {
-    case "LOGIN":
+    case "SET":
       return { session: true, user: action.payload };
     case "LOGOUT":
       return { session: false, user: null };
@@ -21,9 +21,9 @@ const reducer = (state: AuthState, action: Action): AuthState => {
   }
 };
 
-const login =
+const setInfo =
   (dispatch: React.Dispatch<Action>) => (user: AuthUser) => {
-    dispatch({ type: "LOGIN", payload: user });
+    dispatch({ type: "SET", payload: user });
   };
 
 const logout =
@@ -32,4 +32,4 @@ const logout =
   };
 
 export const { Context: AuthContext, Provider: AuthProvider } =
-  CreateDataContext(reducer, { login, logout }, initialState);
+  CreateDataContext(reducer, { setInfo, logout }, initialState);

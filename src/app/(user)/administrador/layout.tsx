@@ -4,24 +4,7 @@ import { AuthState, AuthUser } from "@/app/types/api/auth";
 import { getInternalApiUrl } from "@/api/internalClient";
 import LayoutClient from "./layoutClient";
 import { redirect } from "next/navigation";
-
-function getInitials(name: string): string {
-  return name
-    .trim()
-    .split(/\s+/)
-    .map(word => word[0])
-    .join("");
-}
-
-function buildAuthUser(data: AuthUser): AuthUser {
-  return {
-    userName: data.userName,
-    name: data.name,
-    initials: getInitials(data.name),
-    email: data.email,
-    roles: data.roles[0],
-  } as AuthUser;
-}
+import { buildAuthUser } from "@/lib/utils";
 
 async function getSessionUser(): Promise<AuthUser | null> {
   try {
