@@ -102,9 +102,9 @@ export default function ProfileConfigModal({
           const json: { data: AuthUser } = await userInfoResp.json();
           actions.setInfo(buildAuthUser(json.data));
         } else if (userInfoResp.status === 401) {
-          console.warn("Session invalidated after profile update; re-auth may be required.");
+          console.warn("Sesión invalidada luego the actualizar el perfil; reautenticar puede ser requerido.");
         } else {
-          console.error("Failed to refresh session user:", {
+          console.error("Error al actualizar la sesión del usuario:", {
             status: userInfoResp.status,
             statusText: userInfoResp.statusText,
           });
