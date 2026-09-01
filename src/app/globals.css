@@ -60,3 +60,15 @@ body {
 .animate-dropdown-leave {
   animation: dropdown-leave 180ms cubic-bezier(0.4, 0, 1, 1) both;
 }
+
+/* Oculta los iconos nativos de los navegadores para campos password */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+input[type="password"]::-webkit-credentials-auto-fill-button {
+  display: none;
+  visibility: hidden;
+  pointer-events: none;
+}

@@ -4,6 +4,7 @@ import { useFormik } from "formik";
 import Modal from "./ui/Modal";
 import loginSchema from "./schemas/loginSchema";
 import useVisualNotifications from "@/app/hooks/useVisualNotifications";
+import PasswordVisibility from "./ui/PasswordVisibility";
 
 interface Props {
   open: boolean;
@@ -16,6 +17,7 @@ const styles ={
   form: "space-y-3",
   label: "block text-sm font-medium text-slate-700",
   input: "mt-1 block w-full rounded-md border p-2 text-slate-900",
+  passwordInput: "mt-1 block w-full rounded-md border p-2 pr-9 text-slate-900",
   inputError: "border-rose-500",
   inputNormal: "border-slate-200",
   errorText: "mt-1 text-xs text-rose-600",
@@ -31,6 +33,7 @@ const styles ={
 }
 
 export default function LoginModal({open, onClose, onSuccess, onForgotPassword} : Props) {
+  const [showPassword, setShowPassword] = useState(false);
   const [emailNotConfirmed, setEmailNotConfirmed] = useState(false);
   const [resendEmail, setResendEmail] = useState("");
   const [resendStatus, setResendStatus] = useState<"idle" | "sending" | "success">("idle");
@@ -121,18 +124,21 @@ export default function LoginModal({open, onClose, onSuccess, onForgotPassword} 
 
         <div>
           <label className={styles.label}>Contraseña</label>
-          <input
-            name="password"
-            type="password"
-            value={formik.values.password}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            className={`${styles.input} ${formik.touched.password && formik.errors.password ? styles.inputError : styles.inputNormal}`}
-          />
-          <p className={styles.helpText}>Usa 8+ caracteres con letras y números</p>
+          <div className="relative">
+            <input
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className={`${styles.passwordInput} ${formik.touched.password && formik.errors.password ? styles.inputError : styles.inputNormal}`}
+            />
+            <PasswordVisibility showPassword={showPassword} setShowPassword={setShowPassword} />
+          </div>
           {formik.touched.password && formik.errors.password && (
             <p className={styles.errorText} role="alert">{formik.errors.password}</p>
           )}
+          <p className={styles.helpText}>Usa 8+ caracteres con letras y números</p>
           <p
             className={styles.forgotPasswordLink}
             onClick={onForgotPassword}

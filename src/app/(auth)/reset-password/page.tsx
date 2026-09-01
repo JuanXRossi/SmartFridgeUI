@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import Link from "next/link";
 import * as yup from "yup";
+import PasswordVisibility from "@/app/components/ui/PasswordVisibility";
 
 const resetPasswordSchema = yup.object({
   password: yup
@@ -26,7 +27,7 @@ const styles = {
   form: "space-y-4 text-left",
   label: "block text-sm font-medium text-slate-700",
   input:
-    "mt-1 block w-full rounded-md border p-2 text-slate-900",
+    "mt-1 block w-full rounded-md border p-2 pr-9 text-slate-900",
   inputError: "border-rose-500",
   inputNormal: "border-slate-200",
   errorText: "mt-1 text-xs text-rose-600",
@@ -46,6 +47,8 @@ export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [status, setStatus] = useState<PageStatus>("loading");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [userId, setUserId] = useState("");
   const [token, setToken] = useState("");
@@ -136,39 +139,45 @@ export default function ResetPasswordPage() {
 
             <div>
               <label className={styles.label}>Nueva contraseña</label>
-              <input
-                name="password"
-                type="password"
-                value={formik.values.password}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className={`${styles.input} ${
-                  formik.touched.password && formik.errors.password
-                    ? styles.inputError
-                    : styles.inputNormal
-                }`}
-              />
-              <p className={styles.helpText}>Usa 8+ caracteres con letras y números.</p>
+              <div className="relative">
+                <input
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className={`${styles.input} ${
+                    formik.touched.password && formik.errors.password
+                      ? styles.inputError
+                      : styles.inputNormal
+                  }`}
+                />
+                <PasswordVisibility showPassword={showPassword} setShowPassword={setShowPassword} />
+              </div>
               {formik.touched.password && formik.errors.password && (
                 <p className={styles.errorText} role="alert">
                   {formik.errors.password}
                 </p>
               )}
+              <p className={styles.helpText}>Usa 8+ caracteres con letras y números.</p>
             </div>
             <div>
               <label className={styles.label}>Confirmar contraseña</label>
-              <input
-                name="confirmPassword"
-                type="password"
-                value={formik.values.confirmPassword}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className={`${styles.input} ${
-                  formik.touched.confirmPassword && formik.errors.confirmPassword
-                    ? styles.inputError
-                    : styles.inputNormal
-                }`}
-              />
+              <div className="relative">
+                <input
+                  name="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={formik.values.confirmPassword}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className={`${styles.input} ${
+                    formik.touched.confirmPassword && formik.errors.confirmPassword
+                      ? styles.inputError
+                      : styles.inputNormal
+                  }`}
+                />
+                <PasswordVisibility showPassword={showConfirmPassword} setShowPassword={setShowConfirmPassword} />
+              </div>
               {formik.touched.confirmPassword && formik.errors.confirmPassword && (
                 <p className={styles.errorText} role="alert">
                   {formik.errors.confirmPassword}

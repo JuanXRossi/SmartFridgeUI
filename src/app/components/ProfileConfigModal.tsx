@@ -2,13 +2,14 @@
 
 import { useCallback, useContext, useState } from "react";
 import { useFormik } from "formik";
-import { Eye, EyeOff, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
 import Modal from "./ui/Modal";
 import profileConfigSchema from "./schemas/profileConfigSchema";
 import useVisualNotifications from "@/app/hooks/useVisualNotifications";
 import { AuthUser, UpdateAccountRequest, UpdateAccountResponse } from "../types/api/auth";
 import { AuthContext } from "../context/AuthContext";
 import { buildAuthUser } from "@/lib/utils";
+import PasswordVisibility from "./ui/PasswordVisibility";
 
 interface Props {
   open: boolean;
@@ -20,6 +21,9 @@ const styles = {
   label: "block text-sm font-medium text-slate-700",
   input:
     "mt-1 block w-full rounded-md border p-2 text-slate-900",
+  passwordInput:
+    "mt-1 block w-full rounded-md border p-2 pr-9 text-slate-900",
+  helpText: "mt-1 text-xs text-slate-400",
   inputError: "border-rose-500",
   inputNormal: "border-slate-200",
   errorText: "mt-1 text-xs text-rose-600",
@@ -38,6 +42,8 @@ export default function ProfileConfigModal({ open, onClose }: Props) {
     actions: { openToast },
   } = useVisualNotifications();
   const [showPassword, setShowPassword] = useState(false);
+  const [passwordVisibility, setPasswordVisibility] = useState(false);
+  const [confirmPasswordVisibility, setConfirmPasswordVisibility] = useState(false);
   const { state, actions } = useContext(AuthContext);
 
   const formik = useFormik({
@@ -123,12 +129,15 @@ export default function ProfileConfigModal({ open, onClose }: Props) {
     onClose();
   }, [onClose]);
 
-  const inputClass = (field: keyof typeof formik.values) =>
-    `${styles.input} ${
+  const inputClass = (field: keyof typeof formik.values) => {
+    const inputStyle = (field === "password" || field === "confirmPassword") ? styles.passwordInput : styles.input;
+    
+    return `${inputStyle} ${
       formik.touched[field] && formik.errors[field]
         ? styles.inputError
         : styles.inputNormal
     }`;
+  }
 
   return (
     <Modal
@@ -209,35 +218,42 @@ export default function ProfileConfigModal({ open, onClose }: Props) {
           <div className={styles.fieldsWrapper}>
             <div>
               <label className={styles.label}>Contraseña</label>
-              <input
-                name="password"
-                type="password"
-                value={formik.values.password}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className={inputClass("password")}
-                placeholder="Dejar vacío para no cambiar"
-              />
+              <div className="relative">
+                <input
+                  name="password"
+                  type={passwordVisibility ? 'text' : 'password'}
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className={inputClass("password")}
+                  placeholder="Dejar vacío para no cambiar"
+                />
+                <PasswordVisibility showPassword={passwordVisibility} setShowPassword={setPasswordVisibility} />
+              </div>
               {formik.touched.password &&
                 formik.errors.password && (
                   <p className={styles.errorText} role="alert">
                     {formik.errors.password}
                   </p>
                 )}
+              <p className={styles.helpText}>Usa 8+ caracteres con letras y números.</p>
             </div>
 
             <div>
               <label className={styles.label}>
                 Confirmar contraseña
               </label>
-              <input
-                name="confirmPassword"
-                type="password"
-                value={formik.values.confirmPassword}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className={inputClass("confirmPassword")}
-              />
+              <div className="relative">
+                <input
+                  name="confirmPassword"
+                  type={confirmPasswordVisibility ? 'text' : 'password'}
+                  value={formik.values.confirmPassword}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className={inputClass("confirmPassword")}
+                />
+                <PasswordVisibility showPassword={confirmPasswordVisibility} setShowPassword={setConfirmPasswordVisibility} />
+              </div>
               {formik.touched.confirmPassword &&
                 formik.errors.confirmPassword && (
                   <p className={styles.errorText} role="alert">
