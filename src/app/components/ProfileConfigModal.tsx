@@ -1,15 +1,15 @@
 "use client";
 
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useState } from "react";
 import { useFormik } from "formik";
 import { Shield } from "lucide-react";
 import Modal from "./ui/Modal";
 import profileConfigSchema from "./schemas/profileConfigSchema";
 import useVisualNotifications from "@/app/hooks/useVisualNotifications";
 import { AuthUser, UpdateAccountRequest, UpdateAccountResponse } from "../types/api/auth";
-import { AuthContext } from "../context/AuthContext";
 import { buildAuthUser } from "@/lib/utils";
 import PasswordVisibility from "./ui/PasswordVisibility";
+import useAuth from "../hooks/useAuth";
 
 interface Props {
   open: boolean;
@@ -44,13 +44,13 @@ export default function ProfileConfigModal({ open, onClose }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [passwordVisibility, setPasswordVisibility] = useState(false);
   const [confirmPasswordVisibility, setConfirmPasswordVisibility] = useState(false);
-  const { state, actions } = useContext(AuthContext);
+  const { state: { user }, actions: { setInfo } } = useAuth();
 
   const formik = useFormik({
     initialValues: {
-      name: state.user?.name ?? "",
-      email: state.user?.email ?? "",
-      username: state.user?.userName ?? "",
+      name: user?.name ?? "",
+      email: user?.email ?? "",
+      username: user?.userName ?? "",
       password: "",
       confirmPassword: "",
     },
@@ -97,7 +97,7 @@ export default function ProfileConfigModal({ open, onClose }: Props) {
 
         if (userInfoResp.ok) {
           const json: { data: AuthUser } = await userInfoResp.json();
-          actions.setInfo(buildAuthUser(json.data));
+          setInfo(buildAuthUser(json.data));
         } else if (userInfoResp.status === 401) {
           console.warn("Sesión invalidada luego the actualizar el perfil; reautenticar puede ser requerido.");
         } else {

@@ -1,14 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Menu } from "lucide-react";
 import Headbar from "@/app/components/Headbar";
 import Sidebar from "@/app/components/administrador/Sidebar";
 import { AuthProvider } from "@/app/context/AuthContext";
-import { AuthContext } from "@/app/context/AuthContext";
 import { AuthState } from "@/app/types/api/auth";
 import useVisualNotifications from "@/app/hooks/useVisualNotifications";
+import useAuth from "@/app/hooks/useAuth";
 
 const styles = {
   root: "min-h-screen bg-gradient-to-br from-[#EAF4FB] via-white to-[#EDFAE6]",
@@ -28,7 +28,7 @@ interface LayoutClientProps {
 
 function LayoutShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { actions } = useContext(AuthContext);
+  const { actions: { logout } } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { actions: { openToast } } = useVisualNotifications();
 
@@ -41,7 +41,7 @@ function LayoutShell({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      actions.logout();
+      logout();
       openToast({ severity: 'success', message: 'Has cerrado sesión de manera exitosa' });
       router.replace("/");
     } catch {

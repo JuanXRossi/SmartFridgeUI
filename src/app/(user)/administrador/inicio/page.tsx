@@ -2,8 +2,7 @@
 
 import { Package, AlertTriangle, ShoppingCart, Users } from "lucide-react";
 import DashboardCard from "../components/inicio/DashboardCard";
-import { useContext } from "react";
-import { AuthContext } from "@/app/context/AuthContext";
+import useAuth from "@/app/hooks/useAuth";
 
 const styles = {
   greetingSection: "mb-10",
@@ -41,14 +40,14 @@ const styles = {
 };
 
 export default function AdminHomePage() {
-  const { state } = useContext(AuthContext);
+  const { state: { user } } = useAuth();
 
   return (
     <>
       <section className={styles.greetingSection}>
         <p className={styles.eyebrow}>Panel de administración</p>
         <h1 className={styles.heading}>
-          Hola, <span className={styles.headingAccent}>{state.user?.name}</span> 👋
+          Hola, <span className={styles.headingAccent}>{user?.name}</span> 👋
         </h1>
         <p className={styles.subheading}>
           Aquí tenés el resumen del estado del hogar de hoy.

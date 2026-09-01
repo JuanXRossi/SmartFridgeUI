@@ -1,11 +1,11 @@
 "use client";
 
 import { Bell, LogOut, ChevronDown, Settings } from "lucide-react";
-import { useState, useRef, useEffect, useContext } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import ProfileConfigModal from "./ProfileConfigModal";
 import { cn } from "@/lib/utils";
-import { AuthContext } from "@/app/context/AuthContext";
+import useAuth from "../hooks/useAuth";
 
 const DROPDOWN_ANIMATION_MS = 180;
 
@@ -46,7 +46,7 @@ interface HeadbarProps {
 }
 
 export default function Headbar({ onSignOut }: HeadbarProps) {
-  const { state } = useContext(AuthContext);
+  const { state: { user } } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
@@ -115,7 +115,7 @@ export default function Headbar({ onSignOut }: HeadbarProps) {
           <span className={styles.notifDot} />
         </button>
 
-        {state.user && (
+        {user && (
           <div ref={menuRef}>
             <button
               className={styles.userBtn}
@@ -124,10 +124,10 @@ export default function Headbar({ onSignOut }: HeadbarProps) {
               aria-haspopup="true"
               aria-label="Menú de usuario"
             >
-              <div className={styles.avatar}>{state.user.initials}</div>
+              <div className={styles.avatar}>{user.initials}</div>
               <div className="flex-col items-start leading-tight hidden sm:flex">
-                <span className={styles.userName}>{state.user.name}</span>
-                <span className={styles.userRole}>{state.user.roles}</span>
+                <span className={styles.userName}>{user.name}</span>
+                <span className={styles.userRole}>{user.roles}</span>
               </div>
               <ChevronDown
                 size={14}
@@ -150,8 +150,8 @@ export default function Headbar({ onSignOut }: HeadbarProps) {
                   role="menu"
                 >
                   <div className={styles.dropdownHeader}>
-                    <p className={styles.dropdownName}>{state.user.name}</p>
-                    <p className={styles.dropdownEmail}>{state.user.email}</p>
+                    <p className={styles.dropdownName}>{user.name}</p>
+                    <p className={styles.dropdownEmail}>{user.email}</p>
                   </div>
 
                   <button
@@ -187,7 +187,7 @@ export default function Headbar({ onSignOut }: HeadbarProps) {
         )}
       </div>
 
-      {state.user && (
+      {user && (
         <ProfileConfigModal
           open={profileModalOpen}
           onClose={() => setProfileModalOpen(false)}
