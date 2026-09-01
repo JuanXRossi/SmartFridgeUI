@@ -13,11 +13,6 @@ import { buildAuthUser } from "@/lib/utils";
 interface Props {
   open: boolean;
   onClose: () => void;
-  user: {
-    userName: string;
-    name: string;
-    email: string;
-  };
 }
 
 const styles = {
@@ -38,22 +33,18 @@ const styles = {
   fieldsWrapper: "space-y-3 overflow-hidden transition-all duration-200",
 };
 
-export default function ProfileConfigModal({
-  open,
-  onClose,
-  user,
-}: Props) {
+export default function ProfileConfigModal({ open, onClose }: Props) {
   const {
     actions: { openToast },
   } = useVisualNotifications();
   const [showPassword, setShowPassword] = useState(false);
-  const { actions } = useContext(AuthContext);
+  const { state, actions } = useContext(AuthContext);
 
   const formik = useFormik({
     initialValues: {
-      name: user.name,
-      email: user.email,
-      username: user.userName,
+      name: state.user?.name ?? "",
+      email: state.user?.email ?? "",
+      username: state.user?.userName ?? "",
       password: "",
       confirmPassword: "",
     },

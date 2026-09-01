@@ -28,7 +28,7 @@ interface LayoutClientProps {
 
 function LayoutShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { state, actions } = useContext(AuthContext);
+  const { actions } = useContext(AuthContext);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { actions: { openToast } } = useVisualNotifications();
 
@@ -49,19 +49,9 @@ function LayoutShell({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const user = state.user
-    ? {
-        userName: state.user.userName,
-        name: state.user.name,
-        initials: state.user.initials,
-        email: state.user.email,
-        role: state.user.roles,
-      }
-    : null;
-
   return (
     <div className={styles.root}>
-      <Headbar user={user} onSignOut={() => handleLogout()} />
+      <Headbar onSignOut={() => handleLogout()} />
 
       <button
         className={styles.menuBtn}
