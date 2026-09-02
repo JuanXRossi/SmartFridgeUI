@@ -95,9 +95,15 @@ export default function LoginModal({open, onClose, onSuccess, onForgotPassword} 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: resendEmail }),
       });
+
+      const data = await resp.json();
       if (resp.ok) {
         setResendStatus("success");
       } else {
+        openToast({
+          severity: "error",
+          message: data?.message ?? "No pudimos procesar tu solicitud",
+        });
         setResendStatus("idle");
       }
     } catch {

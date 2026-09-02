@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { useFormik } from "formik";
 import Modal from "./ui/Modal";
 import forgotPasswordSchema from "./schemas/forgotPasswordSchema";
+import useVisualNotifications from "@/app/hooks/useVisualNotifications";
 
 interface Props {
   open: boolean;
@@ -27,10 +28,12 @@ const styles = {
 };
 
 export default function ForgotPasswordModal({ open, onClose }: Props) {
+  const { actions: { openToast } } = useVisualNotifications();
+
   const formik = useFormik({
     initialValues: { email: "" },
     validationSchema: forgotPasswordSchema,
-    onSubmit: async (values, { setSubmitting, setFieldError, resetForm }) => {
+    onSubmit: async (values, { setSubmitting, resetForm }) => {
       try {
         const resp = await fetch("/api/account/forgot-password", {
           method: "POST",
@@ -39,13 +42,23 @@ export default function ForgotPasswordModal({ open, onClose }: Props) {
         });
         const data = await resp.json();
         if (!resp.ok) {
-          setFieldError("email", data?.message ?? "No pudimos procesar tu solicitud");
+          openToast({
+            severity: "error",
+            message: data?.message ?? "No pudimos procesar tu solicitud",
+          })
           return;
         }
         resetForm();
+        openToast({
+          severity: "success",
+          message: data.message,
+        });
         onClose();
       } catch {
-        setFieldError("email", "Error de red. Por favor, inténtalo más tarde.");
+        openToast({
+          severity: "error",
+          message: "Error de red. Por favor, inténtalo más tarde",
+        })
       } finally {
         setSubmitting(false);
       }
