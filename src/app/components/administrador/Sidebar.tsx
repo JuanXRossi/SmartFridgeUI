@@ -73,7 +73,7 @@ const mainNav: NavItem[] = [
   },
   {
     label: "Urgencias de Reposición",
-    href: "/inicio/urgencias",
+    href: "/administrador/urgencias",
     icon: <AlertTriangle size={16} />,
   },
   {
