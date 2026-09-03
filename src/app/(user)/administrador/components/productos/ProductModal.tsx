@@ -66,14 +66,13 @@ export default function ProductModal({ open, product, onClose, onSubmit }: Props
   
   const formik = useFormik<ProductFormData>({
     initialValues: product
-      ? { name: product.name, urgencyId: 0 }
+      ? { name: product.name, urgencyId: product.urgency.id }
       : { name: "", urgencyId: 0 },
     enableReinitialize: true,
     validationSchema: productSchema,
-    onSubmit: async (values, { setSubmitting, resetForm }) => {
+    onSubmit: async (values, { setSubmitting }) => {
       try {
         onSubmit(values);
-        resetForm();
       } finally {
         setSubmitting(false);
       }

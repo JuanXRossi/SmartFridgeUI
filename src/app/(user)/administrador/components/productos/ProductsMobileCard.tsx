@@ -40,13 +40,13 @@ const styles = {
       "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold",
       "bg-[#EDFAE6] text-[#2E7D32] border border-[#B5E0A8]",
     ].join(" "),
-  },
+  } as Record<string, string>,
 
   badgeDot: {
     Alta: "w-1.5 h-1.5 rounded-full bg-[#C0392B]",
     Mid: "w-1.5 h-1.5 rounded-full bg-[#B07D00]",
     Baja: "w-1.5 h-1.5 rounded-full bg-[#2E7D32]",
-  },
+  } as Record<string, string>,
 
   actionsGroup: "flex items-center gap-2 flex-shrink-0",
 
@@ -93,9 +93,9 @@ export default function ProductsMobileCard({
             <div className={styles.cardInfo}>
               <p className={styles.productName}>{product.name}</p>
               <div className={styles.urgencyRow}>
-                <span className={styles.badge[product.urgencyName] ?? styles.badge["Baja"]}>
-                  <span className={styles.badgeDot[product.urgencyName] ?? styles.badgeDot["Baja"]} />
-                  {product.urgencyName}
+                <span className={styles.badge[product.urgency.name] ?? styles.badge["Baja"]}>
+                  <span className={styles.badgeDot[product.urgency.name] ?? styles.badgeDot["Baja"]} />
+                  {product.urgency.name}
                 </span>
               </div>
             </div>

@@ -1,7 +1,12 @@
+interface Urgency {
+  id: number;
+  name: string
+}
+
 export interface Product {
   id: number;
   name: string;
-  urgencyName: string;
+  urgency: Urgency;
 }
 
 export interface ProductFormData {

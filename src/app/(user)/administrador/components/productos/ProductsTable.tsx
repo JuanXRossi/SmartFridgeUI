@@ -109,9 +109,9 @@ export default function ProductsTable({
                 <td className={styles.td}>{product.id}</td>
                 <td className={styles.td}>{product.name}</td>
                 <td className={styles.tdCenter}>
-                  <span className={styles.badge[product.urgencyName] ?? styles.badge["Baja"]}>
-                    <span className={styles.badgeDot[product.urgencyName] ?? styles.badgeDot["Baja"]} />
-                    {product.urgencyName}
+                  <span className={styles.badge[product.urgency.name] ?? styles.badge["Baja"]}>
+                    <span className={styles.badgeDot[product.urgency.name] ?? styles.badgeDot["Baja"]} />
+                    {product.urgency.name}
                   </span>
                 </td>
                 <td className={styles.tdCenter}>

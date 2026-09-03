@@ -127,7 +127,7 @@ export default function ProductosPage() {
       .toLowerCase()
       .includes(search.toLowerCase().trim());
     const matchesUrgency =
-      urgencyFilter === "all" || p.urgencyName === urgencyFilter;
+      urgencyFilter === "all" || p.urgency.name === urgencyFilter;
     return matchesSearch && matchesUrgency;
   });
 
@@ -194,8 +194,8 @@ export default function ProductosPage() {
   };
 
   const total = products.length;
-  const highCount = products.filter((p) => p.urgencyName === "Alta").length;
-  const midCount = products.filter((p) => p.urgencyName === "Mid").length;
+  const highCount = products.filter((p) => p.urgency.name === "Alta").length;
+  const midCount = products.filter((p) => p.urgency.name === "Mid").length;
 
   return (
     <>
